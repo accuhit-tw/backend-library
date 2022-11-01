@@ -1,0 +1,24 @@
+{
+    "name": "accuhit/backend-library",
+    "description": "accunix api, line api, invoice api",
+    "type": "library",
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "Accuhit\\BackendLibrary\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "alex"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^8.0",
+        "guzzlehttp/guzzle": "^7.2"
+    },
+    "require-dev": {
+        "orchestra/testbench": "7.0.2"
+    }
+}
