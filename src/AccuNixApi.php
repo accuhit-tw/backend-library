@@ -2,175 +2,393 @@
 
 namespace Accuhit\BackendLibrary;
 
-use Exception;
+use Dotenv\Dotenv;
+use ErrorException;
 use GuzzleHttp\Client;
 
 class AccuNixApi
 {
-    protected $client;
-    protected $api_host;
-    protected $headers;
+    protected Client $client;
+    protected string $apiHost;
+    protected string $apiBotHost;
+    protected array $headers;
 
     public function __construct()
     {
+        $dotenv = Dotenv::createImmutable(dirname(__DIR__));
+        $dotenv->load();
+
         $this->client = new Client();
-        $this->api_host = "https://api-tf.accunix.net/api/LINEBot/" . config('app.accuNixLINEBotId');
+        $this->apiHost = env('ACCUNIX_URL') . env('ACCUNIX_LINEBOTID');
+        $this->apiBotHost = env('ACCUNIX_BOT_URL') . env('ACCUNIX_LINEBOTID');
         $this->headers = [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . config('app.accuNixAuthToken')
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer ' . env('ACCUNIX_AUTHTOKEN'),
         ];
     }
 
-    /** 身份驗證
-     * @throws Exception
+    /**
+     * 切換主選單
+     * @param string $userToken
+     * @param string $richmenuGuid
+     * @return array
+     * @throws ErrorException
      */
-    public function authenticate(string $userToken, string $roleId, array $data = [])
+    public function richMenuSwitch(string $userToken, string $richmenuGuid)
     {
-        $uri = '/authenticate';
-        $result = $this->curl('POST', $uri, compact('userToken', 'roleId', 'data'));
-        if (isset($result->message) && $result->message !== 'Success') {
-            throw new Exception($result->message ?? "api return blank error message");
+        $uri = "/richmenu/switch";
+        $url = $this->apiHost . $uri;
+        $params = [
+            'user_token' => $userToken,
+            'richmenuGuid' => $richmenuGuid,
+        ];
+
+        $res = $this->client->post($url, [
+            'headers' => $this->headers,
+            'json' => $params,
+        ]);
+
+        if ($res->getStatusCode() != 200) {
+
         }
-        return $result;
+
+        $body = json_decode($res->getBody()->getContents());
+        if (!isset($body['message']) && $body['message'] !== 'success') {
+            throw new ErrorException($body['message'] ?? "api return blank error message");
+        }
+
+        return $body;
     }
 
-    /** 寄送訊息
-     * @throws Exception
+    /**
+     * 寄送訊息
+     * @param string $userToken
+     * @param array $messages line format https://developers.line.biz/en/reference/messaging-api/
+     * @return array
+     * @throws ErrorException
      */
-    public function sendMessage(string $userToken, array $messages = [], int $messageId)
+    public function sendMessageByCustom(string $userToken, array $messages = [])
     {
-        $json = compact('userToken', 'messages');
-        if ($messageId != 0) {
-            $json = compact('userToken', 'messageId');
-        }
-        $uri = '/message/send';
-        $result = $this->curl('POST', $uri, $json);
-        if (isset($result->message) && $result->message !== 'Success') {
-            throw new Exception($result->message ?? "api return blank error message");
-        }
-        return $result;
+        $params = [
+            'messages' => $messages,
+            'userToken' => $userToken,
+        ];
+        return $this->sendMessage($userToken, $params);
+
     }
 
-    /** 寫入好友資訊
-     * @throws Exception
+    /**
+     * 寄送訊息
+     * @param string $userToken
+     * @param string $guid
+     * @return array
+     * @throws ErrorException
+     */
+    public function sendMessageByGuid(string $userToken, string $guid = '')
+    {
+        $params = [
+            'userToken' => $userToken,
+            'guid' => $guid,
+        ];
+        return $this->sendMessage($userToken, $params);
+    }
+
+    /**
+     * 寄送訊息
+     * @param string $userToken
+     * @param array $params
+     * @return mixed
+     * @throws ErrorException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    private function sendMessage(string $userToken, array $params)
+    {
+        $uri = "/message/send";
+        $url = $this->apiHost . $uri;
+
+        $res = $this->client->post($url, [
+            'headers' => $this->headers,
+            'json' => $params,
+        ]);
+
+        if ($res->getStatusCode() != 202) {
+
+        }
+
+        $body = json_decode($res->getBody()->getContents(), true);
+        if (!isset($body['message']) && $body['message'] !== 'success') {
+            throw new ErrorException($body['message'] ?? "api return blank error message");
+        }
+
+        return $body;
+    }
+
+    /**
+     * 寫入好友資訊
+     * @param string $userToken
+     * @param array $data
+     * $data = [
+     *     "info" => [
+     *         "name" => "林艾可",
+     *         "birth" => "1990-01-01",
+     *         "email" => "email@email.com",
+     *         "phone" => "0912345678",
+     *         "gender" => "M",
+     *         "address" => "台北市松山區敦化南路一段2號5樓"
+     *     ],
+     *     "customize" => []
+     * ];
+     *
+     * @return array
      */
     public function addUserInfo(string $userToken, array $data = [])
     {
         $uri = '/users/data';
-        $result = $this->curl('PUT', $uri, compact('userToken', 'data'));
-        if (isset($result->message) && $result->message !== 'Success') {
-            throw new Exception($result->message ?? "api return blank error message");
-        }
+        $url = $this->apiHost . $uri;
+        $params = [
+            'userToken' => $userToken,
+            'data' => $data,
+        ];
 
-        return $result;
-    }
-
-    /** 新增標籤
-     * @throws Exception
-     */
-    public function tagCreate(string $name, string $description, int $days)
-    {
-        $uri = '/tag/create';
-        $result = $this->curl('POST', $uri, [
+        $res = $this->client->patch($url, [
             'headers' => $this->headers,
-            'json' => compact('name', 'description', 'days')
+            'json' => $params,
         ]);
-        if (isset($result->message) && $result->message !== 'Success') {
-            throw new Exception($result->message ?? "api return blank error message");
-        }
-        return $result;
-    }
 
-    /** 取得好友推薦目標資訊
-     * @throws Exception
-     */
-    public function getReferralInfo(string $referralId)
-    {
-        $uri = 'referral/info?referral_id=' . $referralId;
-        $result = $this->curl('GET', $uri, [
-            'headers' => $this->headers
-        ]);
-        if (isset($result->message) && $result->message !== 'Success') {
-            throw new Exception($result->message ?? "api return blank error message");
-        }
-        return $result;
-    }
+        if ($res->getStatusCode() != 202) {
 
-    /** 好友貼標
-     * @throws Exception
-     */
-    public function tagAdd(array $userTokens, array $tags)
-    {
-        $uri = '/tag/add';
-        $result = $this->curl('POST', $uri, compact('userTokens', 'tags'));
-        if (isset($result->message) && $result->message !== 'Success') {
-            throw new Exception($result->message ?? "api return blank error message");
         }
-        return $result;
-    }
 
-    /** 取得User推薦好友數
-     * @throws Exception
-     */
-    public function referralShareUser(string $user_token, string $referral_id)
-    {
-        $uri = '/referral/share-user';
-        $result = $this->curl('GET', $uri, compact('user_token', 'referral_id'));
-        if (isset($result->message) && $result->message !== 'Success') {
-            throw new Exception($result->message ?? "api return blank error message");
+        $body = json_decode($res->getBody()->getContents(), true);
+        if (!isset($body['message']) && $body['message'] !== 'success') {
+            throw new ErrorException($body['message'] ?? "api return blank error message");
         }
-        return $result;
-    }
 
-    /** 取得好友分享連結
-     * @throws Exception
-     */
-    public function getShareLink(string $sharer_token)
-    {
-        $uri = '/users/getShareLink';
-        $result = $this->curl('POST', $uri, compact('sharer_token'));
-        if (isset($result->message) && $result->message !== 'Success') {
-            throw new Exception($result->message ?? "api return blank error message");
-        }
-        return $result;
-    }
-
-    /** 取得好友資訊
-     * @throws Exception
-     */
-    public function getUserProfile(string $user_token, string $options)
-    {
-        $uri = '/users/getUserProfile';
-        $result = $this->curl('GET', $uri, compact('user_token', 'options'));
-        if (isset($result->message) && $result->message !== '') {
-            throw new Exception($result->message ?? "api return blank error message");
-        }
-        return $result;
+        return $body;
     }
 
     /**
-     * curl
+     * 新增標籤
+     * @param string $name
+     * @param int $days
+     * @param string $description
+     * @return array
+     * @throws ErrorException
      */
-    private function curl(string $method, string $uri, array $fields = [])
+    public function createTag(string $name, int $days, string $description = '')
     {
-        $url = $this->api_host . $uri;
-        $curl = curl_init();
-        $opts = array(
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_POSTFIELDS => json_encode($fields),
-            CURLOPT_HTTPHEADER => $this->headers,
-        );
-        curl_setopt_array($curl, $opts);
-        $response = json_decode(curl_exec($curl));
-        curl_close($curl);
-        UtilLogger::putLogs("accuNix", print_r(["url" => $url, "body" => $opts, "res" => $response], true));
-        return $response;
+        $uri = '/tag/create';
+        $url = $this->apiHost . $uri;
+        $params = [
+            'name' => $name,
+            'days' => $days,
+            'description' => $description,
+        ];
+        if ($days == 0 || $days < -1 || $days > 365 ) {
+            throw new \ErrorException('days must be between 1 and 365 or set -1 to be forever');
+        }
+
+        $res = $this->client->post($url, [
+            'headers' => $this->headers,
+            'json' => $params,
+        ]);
+
+        if ($res->getStatusCode() != 200) {
+
+        }
+
+        $body = json_decode($res->getBody()->getContents(), true);
+        if (!isset($body['message']) && $body['message'] !== 'success') {
+            throw new ErrorException($body['message'] ?? "api return blank error message");
+        }
+
+        return $body;
+    }
+
+    /**
+     * 貼上標籤
+     * @param array $userTokens
+     * @param array $tags
+     * @return array
+     */
+    public function addTag(array $userTokens, array $tags)
+    {
+        $uri = '/tag/add';
+        $url = $this->apiHost . $uri;
+        $params = [
+            'userTokens' => $userTokens,
+            'tags' => $tags
+        ];
+
+        $res = $this->client->post($url, [
+            'headers' => $this->headers,
+            'json' => $params,
+        ]);
+
+        if ($res->getStatusCode() != 202) {
+
+        }
+
+        $body = json_decode($res->getBody()->getContents(), true);
+        if (!isset($body['message']) && $body['message'] !== 'success') {
+            throw new ErrorException($body['message'] ?? "api return blank error message");
+        }
+
+        return $body;
+    }
+
+    /**
+     * 剝除標籤
+     * @param array $userTokens
+     * @param array $tags
+     * @return array
+     */
+    public function removeTag(array $userTokens, array $tags)
+    {
+        $uri = '/tag/remove';
+        $url = $this->apiHost . $uri;
+        $params = [
+            'userTokens' => $userTokens,
+            'tags' => $tags
+        ];
+
+        $res = $this->client->post($url, [
+            'headers' => $this->headers,
+            'json' => $params,
+        ]);
+
+        if ($res->getStatusCode() != 202) {
+
+        }
+
+        $body = json_decode($res->getBody()->getContents(), true);
+        if (!isset($body['message']) && $body['message'] !== 'success') {
+            throw new ErrorException($body['message'] ?? "api return blank error message");
+        }
+
+        return $body;
+    }
+
+    /**
+     * 取得好友推薦目標資訊
+     * @param int $referralId
+     * @return array
+     */
+    public function getReferralInfo(int $referralId)
+    {
+        $uri = '/referral/info';
+        $url = $this->apiBotHost . $uri;
+
+        $res = $this->client->get($url, [
+            'headers' => $this->headers,
+            'query' => [
+                'referral_id' => $referralId
+            ]
+        ]);
+
+        if ($res->getStatusCode() != 200) {
+
+        }
+
+        $body = json_decode($res->getBody()->getContents(), true);
+        if (!isset($body['message']) && $body['message'] !== 'Success') {
+            throw new ErrorException($body['message'] ?? "api return blank error message");
+        }
+
+        return $body;
+    }
+
+    /**
+     * 取得User推薦好友數
+     * @param string $userToken
+     * @param string $referralId
+     * @return array
+     */
+    public function referralShareUser(string $userToken, int $referralId)
+    {
+        $uri = '/referral/share-user';
+        $url = $this->apiBotHost . $uri;
+
+        $res = $this->client->get($url, [
+            'headers' => $this->headers,
+            'query' => [
+                'user_token' => $userToken,
+                'referral_id' => $referralId,
+            ]
+        ]);
+
+        if ($res->getStatusCode() != 200) {
+
+        }
+
+        $body = json_decode($res->getBody()->getContents(), true);
+        if (!isset($body['message']) && $body['message'] !== 'Success') {
+            throw new ErrorException($body['message'] ?? "api return blank error message");
+        }
+
+        return $body;
+    }
+
+
+    /**
+     * 取得好友分享連結
+     * @param string $userToken
+     * @return array
+     */
+    public function getShareLink(string $userToken)
+    {
+        $uri = '/users/getShareLink';
+        $url = $this->apiBotHost . $uri;
+
+        $params = [
+            'sharer_token' => $userToken,
+        ];
+
+        $res = $this->client->post($url, [
+            'headers' => $this->headers,
+            'json' => $params,
+        ]);
+
+        if ($res->getStatusCode() != 200) {
+
+        }
+
+        $body = json_decode($res->getBody()->getContents(), true);
+        if (!isset($body['message'])) {
+            throw new ErrorException($body['message'] ?? "api return blank error message");
+        }
+
+        return $body;
+    }
+
+    /**
+     * 取得好友資訊
+     * @param string $userToken
+     * @param string $options
+     * @return array
+     */
+    public function getProfile(string $userToken, string $options = "auth,tags,member,info,customize,referrals")
+    {
+        $uri = '/user/profile';
+        $url = $this->apiHost . $uri;
+
+        $res = $this->client->get($url, [
+            'headers' => $this->headers,
+            'query' => [
+                'userToken' => $userToken,
+                'options' => $options,
+            ]
+        ]);
+
+        if ($res->getStatusCode() != 200) {
+
+        }
+
+        $body = json_decode($res->getBody()->getContents(), true);
+        if (isset($body['message'])) {
+            throw new ErrorException($body['message'] ?? "api return blank error message");
+        }
+
+        return $body;
     }
 }
