@@ -73,7 +73,7 @@ class AccuNixApi
             'messages' => $messages,
             'userToken' => $userToken,
         ];
-        return $this->sendMessage($userToken, $params);
+        return $this->sendMessage($params);
 
     }
 
@@ -90,18 +90,17 @@ class AccuNixApi
             'userToken' => $userToken,
             'guid' => $guid,
         ];
-        return $this->sendMessage($userToken, $params);
+        return $this->sendMessage($params);
     }
 
     /**
      * 寄送訊息
-     * @param string $userToken
      * @param array $params
      * @return mixed
      * @throws ErrorException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    private function sendMessage(string $userToken, array $params)
+    private function sendMessage(array $params)
     {
         $uri = "/message/send";
         $url = $this->apiHost . $uri;

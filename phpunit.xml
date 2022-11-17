@@ -20,6 +20,7 @@
     <php>
         <server name="APP_ENV" value="testing"/>
         <server name="ACCUNIX_URL" value="https://api-tf.accunix.net/api/line/"/>
+        <server name="ACCUNIX_BOT_URL" value="https://api-tf.accunix.net/api/LINEBot/"/>
         <server name="ACCUNIX_LINEBOTID" value="18104c98988lMz"/>
         <server name="ACCUNIX_AUTHTOKEN" value="uaQm2oGG3gFjlKxbl2533U72itfoPXGy"/>
         <server name="USER_TOKEN" value=""/>
