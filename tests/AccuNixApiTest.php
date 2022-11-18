@@ -15,7 +15,7 @@ final class AccuNixApiTest extends TestCase
     public function testRichMenuSwitch()
     {
         $userToken = env('USER_TOKEN');
-        $richmenuGuid = "";
+        $richmenuGuid = "1837d920a7aHmg";
 
         $nix = new AccuNixApi();
         $res = $nix->richMenuSwitch($userToken, $richmenuGuid);

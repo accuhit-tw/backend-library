@@ -2,10 +2,15 @@
 
 namespace Accuhit\BackendLibrary;
 
+use Accuhit\BackendLibrary\Exceptions\AccuNixException;
 use Dotenv\Dotenv;
-use ErrorException;
 use GuzzleHttp\Client;
 
+/**
+ * @class AccuNixApi
+ * @author Alex.hsu
+ * please cache AccuNixException for each request.
+ */
 class AccuNixApi
 {
     protected Client $client;
@@ -32,14 +37,14 @@ class AccuNixApi
      * @param string $userToken
      * @param string $richmenuGuid
      * @return array
-     * @throws ErrorException
+     * @throws AccuNixException
      */
     public function richMenuSwitch(string $userToken, string $richmenuGuid): array
     {
         $uri = "/richmenu/switch";
         $url = $this->apiHost . $uri;
         $params = [
-            'user_token' => $userToken,
+            'userToken' => $userToken,
             'richmenuGuid' => $richmenuGuid,
         ];
 
@@ -48,26 +53,17 @@ class AccuNixApi
             'json' => $params,
         ]);
 
-        if ($res->getStatusCode() != 200) {
-
-        }
-
-        $body = json_decode($res->getBody()->getContents());
-        if (!isset($body['message']) && $body['message'] !== 'success') {
-            throw new ErrorException($body['message'] ?? "api return blank error message");
-        }
-
-        return $body;
+        return json_decode($res->getBody()->getContents(), true);
     }
 
     /**
-     * 寄送訊息
+     * 寄送訊息(客製化)
      * @param string $userToken
      * @param array $messages line format https://developers.line.biz/en/reference/messaging-api/
      * @return array
-     * @throws ErrorException
+     * @throws AccuNixException
      */
-    public function sendMessageByCustom(string $userToken, array $messages = []): array
+    public function sendMessageByCustom(string $userToken, array $messages): array
     {
         $params = [
             'messages' => $messages,
@@ -78,13 +74,13 @@ class AccuNixApi
     }
 
     /**
-     * 寄送訊息
+     * 寄送訊息(nix樣板)
      * @param string $userToken
      * @param string $guid
      * @return array
-     * @throws ErrorException
+     * @throws AccuNixException
      */
-    public function sendMessageByGuid(string $userToken, string $guid = ''): array
+    public function sendMessageByGuid(string $userToken, string $guid): array
     {
         $params = [
             'userToken' => $userToken,
@@ -94,11 +90,9 @@ class AccuNixApi
     }
 
     /**
-     * 寄送訊息
      * @param array $params
      * @return array
-     * @throws ErrorException
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws AccuNixException
      */
     private function sendMessage(array $params): array
     {
@@ -110,16 +104,7 @@ class AccuNixApi
             'json' => $params,
         ]);
 
-        if ($res->getStatusCode() != 202) {
-
-        }
-
-        $body = json_decode($res->getBody()->getContents(), true);
-        if (!isset($body['message']) && $body['message'] !== 'success') {
-            throw new ErrorException($body['message'] ?? "api return blank error message");
-        }
-
-        return $body;
+        return json_decode($res->getBody()->getContents(), true);
     }
 
     /**
@@ -139,8 +124,9 @@ class AccuNixApi
      * ];
      *
      * @return array
+     * @throws AccuNixException
      */
-    public function addUserInfo(string $userToken, array $data = []): array
+    public function addUserInfo(string $userToken, array $data): array
     {
         $uri = '/users/data';
         $url = $this->apiHost . $uri;
@@ -154,16 +140,7 @@ class AccuNixApi
             'json' => $params,
         ]);
 
-        if ($res->getStatusCode() != 202) {
-
-        }
-
-        $body = json_decode($res->getBody()->getContents(), true);
-        if (!isset($body['message']) && $body['message'] !== 'success') {
-            throw new ErrorException($body['message'] ?? "api return blank error message");
-        }
-
-        return $body;
+        return json_decode($res->getBody()->getContents(), true);
     }
 
     /**
@@ -172,7 +149,7 @@ class AccuNixApi
      * @param int $days
      * @param string $description
      * @return array
-     * @throws ErrorException
+     * @throws AccuNixException
      */
     public function createTag(string $name, int $days, string $description = ''): array
     {
@@ -183,8 +160,8 @@ class AccuNixApi
             'days' => $days,
             'description' => $description,
         ];
-        if ($days == 0 || $days < -1 || $days > 365 ) {
-            throw new \ErrorException('days must be between 1 and 365 or set -1 to be forever');
+        if ($days == 0 || $days < -1 || $days > 365) {
+            throw new AccuNixException('days must be between 1 and 365 or set -1 to be forever');
         }
 
         $res = $this->client->post($url, [
@@ -192,16 +169,7 @@ class AccuNixApi
             'json' => $params,
         ]);
 
-        if ($res->getStatusCode() != 200) {
-
-        }
-
-        $body = json_decode($res->getBody()->getContents(), true);
-        if (!isset($body['message']) && $body['message'] !== 'success') {
-            throw new ErrorException($body['message'] ?? "api return blank error message");
-        }
-
-        return $body;
+        return json_decode($res->getBody()->getContents(), true);
     }
 
     /**
@@ -209,6 +177,7 @@ class AccuNixApi
      * @param array $userTokens
      * @param array $tags
      * @return array
+     * @throws AccuNixException
      */
     public function addTag(array $userTokens, array $tags): array
     {
@@ -224,16 +193,7 @@ class AccuNixApi
             'json' => $params,
         ]);
 
-        if ($res->getStatusCode() != 202) {
-
-        }
-
-        $body = json_decode($res->getBody()->getContents(), true);
-        if (!isset($body['message']) && $body['message'] !== 'success') {
-            throw new ErrorException($body['message'] ?? "api return blank error message");
-        }
-
-        return $body;
+        return json_decode($res->getBody()->getContents(), true);
     }
 
     /**
@@ -241,6 +201,7 @@ class AccuNixApi
      * @param array $userTokens
      * @param array $tags
      * @return array
+     * @throws AccuNixException
      */
     public function removeTag(array $userTokens, array $tags): array
     {
@@ -256,22 +217,14 @@ class AccuNixApi
             'json' => $params,
         ]);
 
-        if ($res->getStatusCode() != 202) {
-
-        }
-
-        $body = json_decode($res->getBody()->getContents(), true);
-        if (!isset($body['message']) && $body['message'] !== 'success') {
-            throw new ErrorException($body['message'] ?? "api return blank error message");
-        }
-
-        return $body;
+        return json_decode($res->getBody()->getContents(), true);
     }
 
     /**
      * 取得好友推薦目標資訊
      * @param int $referralId
      * @return array
+     * @throws AccuNixException
      */
     public function getReferralInfo(int $referralId): array
     {
@@ -285,23 +238,15 @@ class AccuNixApi
             ]
         ]);
 
-        if ($res->getStatusCode() != 200) {
-
-        }
-
-        $body = json_decode($res->getBody()->getContents(), true);
-        if (!isset($body['message']) && $body['message'] !== 'Success') {
-            throw new ErrorException($body['message'] ?? "api return blank error message");
-        }
-
-        return $body;
+        return json_decode($res->getBody()->getContents(), true);
     }
 
     /**
      * 取得User推薦好友數
      * @param string $userToken
-     * @param string $referralId
+     * @param int $referralId
      * @return array
+     * @throws AccuNixException
      */
     public function referralShareUser(string $userToken, int $referralId): array
     {
@@ -316,16 +261,7 @@ class AccuNixApi
             ]
         ]);
 
-        if ($res->getStatusCode() != 200) {
-
-        }
-
-        $body = json_decode($res->getBody()->getContents(), true);
-        if (!isset($body['message']) && $body['message'] !== 'Success') {
-            throw new ErrorException($body['message'] ?? "api return blank error message");
-        }
-
-        return $body;
+        return json_decode($res->getBody()->getContents(), true);
     }
 
 
@@ -333,6 +269,7 @@ class AccuNixApi
      * 取得好友分享連結
      * @param string $userToken
      * @return array
+     * @throws AccuNixException
      */
     public function getShareLink(string $userToken): array
     {
@@ -348,16 +285,7 @@ class AccuNixApi
             'json' => $params,
         ]);
 
-        if ($res->getStatusCode() != 200) {
-
-        }
-
-        $body = json_decode($res->getBody()->getContents(), true);
-        if (!isset($body['message'])) {
-            throw new ErrorException($body['message'] ?? "api return blank error message");
-        }
-
-        return $body;
+        return json_decode($res->getBody()->getContents(), true);
     }
 
     /**
@@ -365,6 +293,7 @@ class AccuNixApi
      * @param string $userToken
      * @param string $options
      * @return array
+     * @throws AccuNixException
      */
     public function getProfile(string $userToken, string $options = "auth,tags,member,info,customize,referrals"): array
     {
@@ -379,15 +308,6 @@ class AccuNixApi
             ]
         ]);
 
-        if ($res->getStatusCode() != 200) {
-
-        }
-
-        $body = json_decode($res->getBody()->getContents(), true);
-        if (isset($body['message'])) {
-            throw new ErrorException($body['message'] ?? "api return blank error message");
-        }
-
-        return $body;
+        return json_decode($res->getBody()->getContents(), true);
     }
 }
