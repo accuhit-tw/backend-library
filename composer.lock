@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2967acf423c36f785e2eedd01205db04",
+    "content-hash": "fd676ff56c60d3345809ff5a543fa995",
     "packages": [
         {
             "name": "graham-campbell/result-type",
@@ -1006,7 +1006,7 @@
         },
         {
             "name": "vlucas/phpdotenv",
-            "version": "dev-master",
+            "version": "v5.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vlucas/phpdotenv.git",
@@ -1035,7 +1035,6 @@
             "suggest": {
                 "ext-filter": "Required to use the boolean validator."
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -1788,12 +1787,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "213e07ef363bb6f2355254a5a9a0da33dcd692ad"
+                "reference": "c6678dcc29cef263e4021018f3174cfdc12c5c5f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/213e07ef363bb6f2355254a5a9a0da33dcd692ad",
-                "reference": "213e07ef363bb6f2355254a5a9a0da33dcd692ad",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/c6678dcc29cef263e4021018f3174cfdc12c5c5f",
+                "reference": "c6678dcc29cef263e4021018f3174cfdc12c5c5f",
                 "shasum": ""
             },
             "require": {
@@ -1967,7 +1966,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2022-11-14T18:04:24+00:00"
+            "time": "2022-11-17T16:16:48+00:00"
         },
         {
             "name": "laravel/serializable-closure",
@@ -3070,12 +3069,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/orchestral/testbench-core.git",
-                "reference": "7d565d6d4bdf165a75a8ae82b8b6d9b72f9c458c"
+                "reference": "af50d761e30e5694a8d6e19e84e81855811a96e9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/orchestral/testbench-core/zipball/7d565d6d4bdf165a75a8ae82b8b6d9b72f9c458c",
-                "reference": "7d565d6d4bdf165a75a8ae82b8b6d9b72f9c458c",
+                "url": "https://api.github.com/repos/orchestral/testbench-core/zipball/af50d761e30e5694a8d6e19e84e81855811a96e9",
+                "reference": "af50d761e30e5694a8d6e19e84e81855811a96e9",
                 "shasum": ""
             },
             "require": {
@@ -3160,7 +3159,7 @@
                     "type": "liberapay"
                 }
             ],
-            "time": "2022-11-15T00:36:46+00:00"
+            "time": "2022-11-16T00:52:52+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -3287,12 +3286,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "858b0f26c8b12ed8f9bf1a610e1470af6950c5da"
+                "reference": "c77b56b63e3d2031bd8997fcec43c1925ae46559"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/858b0f26c8b12ed8f9bf1a610e1470af6950c5da",
-                "reference": "858b0f26c8b12ed8f9bf1a610e1470af6950c5da",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/c77b56b63e3d2031bd8997fcec43c1925ae46559",
+                "reference": "c77b56b63e3d2031bd8997fcec43c1925ae46559",
                 "shasum": ""
             },
             "require": {
@@ -3348,7 +3347,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.19"
             },
             "funding": [
                 {
@@ -3356,7 +3355,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-11-07T16:54:48+00:00"
+            "time": "2022-11-18T07:47:47+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -7972,7 +7971,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "vlucas/phpdotenv": 20,
         "phpunit/phpunit": 20
     },
     "prefer-stable": false,
