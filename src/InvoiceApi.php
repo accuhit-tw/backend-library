@@ -32,7 +32,7 @@ class InvoiceApi
     /**
      * @return array
      */
-    public static function getTypeList()
+    public static function getTypeList(): array
     {
         return [
             self::TYPE_BARCODE => "一維條碼",
@@ -63,7 +63,7 @@ class InvoiceApi
      * @param $invoiceNumber
      * @return boolean
      */
-    public function validNumber($invoiceNumber)
+    public function validNumber($invoiceNumber): bool
     {
         return preg_match('/^[A-Z]{2}\d{8}$/', $invoiceNumber);
     }
@@ -76,6 +76,8 @@ class InvoiceApi
      * @param string $randomCode
      * @param string $encrypt
      * @param string $sellerId
+     *
+     * @return array
      * @throws InvoiceException
      * @throws \InvalidArgumentException
      */
@@ -86,7 +88,7 @@ class InvoiceApi
         string $randomCode,
         string $encrypt = '',
         string $sellerId = ''
-    )
+    ): array
     {
         if (!in_array($type, array_keys(self::getTypeList()))) {
             throw new \InvalidArgumentException(sprintf("Not supported type: %s", $type));

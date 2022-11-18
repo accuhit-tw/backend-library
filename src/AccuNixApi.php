@@ -34,7 +34,7 @@ class AccuNixApi
      * @return array
      * @throws ErrorException
      */
-    public function richMenuSwitch(string $userToken, string $richmenuGuid)
+    public function richMenuSwitch(string $userToken, string $richmenuGuid): array
     {
         $uri = "/richmenu/switch";
         $url = $this->apiHost . $uri;
@@ -67,7 +67,7 @@ class AccuNixApi
      * @return array
      * @throws ErrorException
      */
-    public function sendMessageByCustom(string $userToken, array $messages = [])
+    public function sendMessageByCustom(string $userToken, array $messages = []): array
     {
         $params = [
             'messages' => $messages,
@@ -84,7 +84,7 @@ class AccuNixApi
      * @return array
      * @throws ErrorException
      */
-    public function sendMessageByGuid(string $userToken, string $guid = '')
+    public function sendMessageByGuid(string $userToken, string $guid = ''): array
     {
         $params = [
             'userToken' => $userToken,
@@ -96,11 +96,11 @@ class AccuNixApi
     /**
      * 寄送訊息
      * @param array $params
-     * @return mixed
+     * @return array
      * @throws ErrorException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    private function sendMessage(array $params)
+    private function sendMessage(array $params): array
     {
         $uri = "/message/send";
         $url = $this->apiHost . $uri;
@@ -140,7 +140,7 @@ class AccuNixApi
      *
      * @return array
      */
-    public function addUserInfo(string $userToken, array $data = [])
+    public function addUserInfo(string $userToken, array $data = []): array
     {
         $uri = '/users/data';
         $url = $this->apiHost . $uri;
@@ -174,7 +174,7 @@ class AccuNixApi
      * @return array
      * @throws ErrorException
      */
-    public function createTag(string $name, int $days, string $description = '')
+    public function createTag(string $name, int $days, string $description = ''): array
     {
         $uri = '/tag/create';
         $url = $this->apiHost . $uri;
@@ -210,7 +210,7 @@ class AccuNixApi
      * @param array $tags
      * @return array
      */
-    public function addTag(array $userTokens, array $tags)
+    public function addTag(array $userTokens, array $tags): array
     {
         $uri = '/tag/add';
         $url = $this->apiHost . $uri;
@@ -242,7 +242,7 @@ class AccuNixApi
      * @param array $tags
      * @return array
      */
-    public function removeTag(array $userTokens, array $tags)
+    public function removeTag(array $userTokens, array $tags): array
     {
         $uri = '/tag/remove';
         $url = $this->apiHost . $uri;
@@ -273,7 +273,7 @@ class AccuNixApi
      * @param int $referralId
      * @return array
      */
-    public function getReferralInfo(int $referralId)
+    public function getReferralInfo(int $referralId): array
     {
         $uri = '/referral/info';
         $url = $this->apiBotHost . $uri;
@@ -303,7 +303,7 @@ class AccuNixApi
      * @param string $referralId
      * @return array
      */
-    public function referralShareUser(string $userToken, int $referralId)
+    public function referralShareUser(string $userToken, int $referralId): array
     {
         $uri = '/referral/share-user';
         $url = $this->apiBotHost . $uri;
@@ -334,7 +334,7 @@ class AccuNixApi
      * @param string $userToken
      * @return array
      */
-    public function getShareLink(string $userToken)
+    public function getShareLink(string $userToken): array
     {
         $uri = '/users/getShareLink';
         $url = $this->apiBotHost . $uri;
@@ -366,7 +366,7 @@ class AccuNixApi
      * @param string $options
      * @return array
      */
-    public function getProfile(string $userToken, string $options = "auth,tags,member,info,customize,referrals")
+    public function getProfile(string $userToken, string $options = "auth,tags,member,info,customize,referrals"): array
     {
         $uri = '/user/profile';
         $url = $this->apiHost . $uri;
