@@ -310,4 +310,30 @@ class AccuNixApi
 
         return json_decode($res->getBody()->getContents(), true);
     }
+
+    /**
+     * 貼上身份
+     * @param string $userToken
+     * @param int $roleId
+     * @param array $data
+     * @return array
+     * @throws AccuNixException
+     */
+    public function authenticate(string $userToken, int $roleId, array $data = []): array
+    {
+        $uri = '/authenticate';
+        $url = $this->apiHost . $uri;
+        $params = [
+            'data' => $data,
+            'roleId' => $roleId,
+            'userToken' => $userToken,
+        ];
+
+        $res = $this->client->post($url, [
+            'headers' => $this->headers,
+            'json' => $params,
+        ]);
+
+        return json_decode($res->getBody()->getContents(), true);
+    }
 }

@@ -178,4 +178,16 @@ final class AccuNixApiTest extends TestCase
         $this->assertArrayHasKey('referrals', $res);
         $this->assertArrayHasKey('authentication', $res);
     }
+
+    public function testAuthenticate()
+    {
+        $userToken = env('USER_TOKEN');
+        $nix = new AccuNixApi();
+        $roleId = 604;
+
+        $res = $nix->authenticate($userToken, $roleId);
+        $this->assertArrayHasKey('message', $res);
+        $this->assertEquals('success', $res['message']);
+
+    }
 }
