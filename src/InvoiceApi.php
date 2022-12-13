@@ -6,18 +6,20 @@ use Accuhit\BackendLibrary\ResponseCode\InvoiceResponseCode;
 use Accuhit\BackendLibrary\Exceptions\InvoiceException;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 
 class InvoiceApi
 {
     private string $appId;
     private string $apiKey;
     private string $url;
-    private array $headers;
+    private Client $client;
 
+    private array $headers;
     const TYPE_BARCODE = 'Barcode';
     const TYPE_QRCODE = 'QRCode';
 
-    public function __construct()
+    public function __construct(Client $client = null)
     {
         $this->appId = env("INV_APP_ID", "");
         $this->apiKey = env("INV_API_KEY", "");
@@ -27,6 +29,7 @@ class InvoiceApi
             'Content-Type' => 'application/x-www-form-urlencoded',
             'cache-control: no-cache'
         ];
+        $this->client = $client ?? new Client();
     }
 
     /**
@@ -123,17 +126,19 @@ class InvoiceApi
                 break;
         }
 
-        $client = new Client();
-        $response = $client->post($this->url, [
-            'headers' => $this->headers,
-            'form_params' => $params,
-        ]);
-
-        if ($response->getStatusCode() !== 200) {
-            $msg = '';
+        $client = $this->client;
+        try {
+            $response = $client->post($this->url, [
+                'headers' => $this->headers,
+                'form_params' => $params,
+            ]);
+        } catch (RequestException $e) {
+            $msg = $e->getMessage();
+            $response = $e->getResponse();
 
             $data = [
                 'message' => $msg,
+                'statusCode' => $response->getStatusCode(),
                 'params' => $params,
                 'response' => $response->getBody()->getContents(),
             ];
@@ -147,6 +152,7 @@ class InvoiceApi
             $msg = $errors[$errorCode];
             $data = [
                 'message' => $msg,
+                'statusCode' => $response->getStatusCode(),
                 'params' => $params,
                 'response' => $result,
             ];

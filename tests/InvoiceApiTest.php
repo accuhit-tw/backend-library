@@ -1,7 +1,14 @@
 <?php
 
 
+use Accuhit\BackendLibrary\Exceptions\InvoiceException;
 use Accuhit\BackendLibrary\InvoiceApi;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 
 final class InvoiceApiTest extends TestCase
@@ -95,15 +102,21 @@ final class InvoiceApiTest extends TestCase
 "details":[{"unitPrice":"40","amount":"40","quantity":"1","rowNum":"1","description":"銀戰士CR-2032/3V鋰電池1入"}],
 "invDate":"20221011"}
 JSON;
-        $res = json_decode($json, true);
-        //TODO Mock response
+        $mock = new MockHandler([
+            new Response(200, [], $json),
+        ]);
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+//        $client = new Client(); //send real request
+        $api = new InvoiceApi($client);
+
         $params = [
             'type' => InvoiceApi::TYPE_BARCODE,
             'invoiceNumber' => 'EC30150795',
             'invoiceDate' => '2022-10-11',
             'randomCode' => '2457',
         ];
-//        $res = $api->getInvoiceDetails(...array_values($params));
+        $res = $api->getInvoiceDetails(...array_values($params));
 
         $this->assertArrayHasKey("msg", $res);
         $this->assertArrayHasKey("code", $res);
@@ -117,5 +130,56 @@ JSON;
         $this->assertArrayHasKey("buyerBan", $res);
         $this->assertArrayHasKey("currency", $res);
         $this->assertArrayHasKey("details", $res);
+    }
+
+    public function testGetInvoiceDetailsTimeOut()
+    {
+        $params = [
+            'type' => InvoiceApi::TYPE_BARCODE,
+            'invoiceNumber' => 'EC30150795',
+            'invoiceDate' => '2022-10-11',
+            'randomCode' => '2457',
+        ];
+        $request = new Request('Post','https://api.einvoice.nat.gov.tw/PB2CAPIVAN/invapp/InvApp', [], json_encode($params));
+        $response = new Response(408);
+        $mock = new MockHandler([
+            new RequestException('Time Out', $request, $response),
+        ]);
+
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $api = new InvoiceApi($client);
+
+        $this->expectException(InvoiceException::class);
+        $res = $api->getInvoiceDetails(...array_values($params));
+    }
+
+    public function testGetInvoiceDetailsException()
+    {
+        $params = [
+            'type' => InvoiceApi::TYPE_BARCODE,
+            'invoiceNumber' => 'EC30150795',
+            'invoiceDate' => '2022-10-11',
+            'randomCode' => '2457',
+        ];
+        $request = new Request('Post','https://api.einvoice.nat.gov.tw/PB2CAPIVAN/invapp/InvApp', [], json_encode($params));
+        $response = new Response(408);
+        $mock = new MockHandler([
+            new RequestException('Time Out', $request, $response),
+        ]);
+
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler' => $handler]);
+        $api = new InvoiceApi($client);
+
+        try {
+            $res = $api->getInvoiceDetails(...array_values($params));
+        } catch (InvoiceException $e) {
+            $data = json_decode($e->getMessage(), true);
+            $this->assertArrayHasKey("message", $data);
+            $this->assertArrayHasKey("statusCode", $data);
+            $this->assertArrayHasKey("params", $data);
+            $this->assertArrayHasKey("response", $data);
+        }
     }
 }
