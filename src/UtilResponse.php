@@ -46,6 +46,7 @@ class UtilResponse
     {
         /** @var string $status */
         if (Validate::checkQueryStr($message)) {
+            UtilLogger::error($message);
             $message = "db error";
         }
         $response = [

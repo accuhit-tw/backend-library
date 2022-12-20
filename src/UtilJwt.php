@@ -3,6 +3,7 @@
 namespace Accuhit\BackendLibrary;
 
 use Accuhit\BackendLibrary\Exceptions\UtilJwtException;
+use Dotenv\Dotenv;
 use Exception;
 
 class UtilJwt
@@ -13,6 +14,9 @@ class UtilJwt
 
     private function __construct()
     {
+        $dotenv = Dotenv::createImmutable(dirname(__DIR__));
+        $dotenv->load();
+
         self::$instance = $this;
         self::$secret = env("JWT_SECRET", "secret");
     }
@@ -36,7 +40,7 @@ class UtilJwt
         $arr = [
             'iss' => env('APP_NAME', "accuProject"), //簽發者
             'iat' => $time, //簽發時間
-            'exp' => $time + 21600, //過期時間
+            'exp' => $time + env("JWT_EXP", 21600), //過期時間
             'nbf' => $time, //該時間之前不接收處理該Token
             'sub' => '', //面向用戶
             'jti' => md5(uniqid('JWT') . $time) //該token唯一認證
