@@ -18,14 +18,17 @@ class AccuNixApi
     protected string $apiBotHost;
     protected array $headers;
 
-    public function __construct()
+    public function __construct($botId = null, $authToken = null)
     {
         $dotenv = Dotenv::createImmutable(dirname(__DIR__));
         $dotenv->load();
 
+        $botId = $botId ?? env('ACCUNIX_LINEBOTID');
+        $authToken = $authToken ?? env('ACCUNIX_LINEBOTID');
+
         $this->client = new Client();
-        $this->apiHost = env('ACCUNIX_URL') . env('ACCUNIX_LINEBOTID');
-        $this->apiBotHost = env('ACCUNIX_BOT_URL') . env('ACCUNIX_LINEBOTID');
+        $this->apiHost = env('ACCUNIX_URL') . $botId;
+        $this->apiBotHost = env('ACCUNIX_BOT_URL') . $authToken;
         $this->headers = [
             'Content-Type' => 'application/json',
             'Authorization' => 'Bearer ' . env('ACCUNIX_AUTHTOKEN'),
