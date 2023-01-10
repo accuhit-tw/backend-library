@@ -91,8 +91,7 @@ class InvoiceApi
         string $randomCode,
         string $encrypt = '',
         string $sellerId = ''
-    ): array
-    {
+    ): array {
         if (!in_array($type, array_keys(self::getTypeList()))) {
             throw new \InvalidArgumentException(sprintf("Not supported type: %s", $type));
         }

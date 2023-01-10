@@ -36,6 +36,16 @@ class AccuNixApi
     }
 
     /**
+     * mock client
+     * @param $client
+     * @return void
+     */
+    public function setClient($client)
+    {
+        $this->client = $client;
+    }
+
+    /**
      * 切換主選單
      * @param string $userToken
      * @param string $richmenuGuid
@@ -73,7 +83,6 @@ class AccuNixApi
             'userToken' => $userToken,
         ];
         return $this->sendMessage($params);
-
     }
 
     /**

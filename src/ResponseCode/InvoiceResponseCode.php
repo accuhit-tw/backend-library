@@ -49,6 +49,4 @@ class InvoiceResponseCode
             self::UNKNOWN_ERROR => '未知錯誤（以避免程式當機）',
         ];
     }
-
 }
-
