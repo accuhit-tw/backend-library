@@ -5,7 +5,8 @@
     "license": "proprietary",
     "autoload": {
         "psr-4": {
-            "Accuhit\\BackendLibrary\\": "src/"
+            "Accuhit\\BackendLibrary\\": "src/",
+            "Accuhit\\Tests\\": "tests/"
         }
     },
     "authors": [
@@ -16,9 +17,12 @@
     "minimum-stability": "dev",
     "require": {
         "php": "^8.0",
-        "guzzlehttp/guzzle": "^7.2"
+        "guzzlehttp/guzzle": "^7.2",
+        "vlucas/phpdotenv": "5.5.0"
     },
     "require-dev": {
-        "orchestra/testbench": "7.0.2"
+        "orchestra/testbench": "7.0.2",
+        "phpunit/phpunit": "9.5.x-dev",
+        "squizlabs/php_codesniffer": "*"
     }
 }

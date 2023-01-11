@@ -7,8 +7,9 @@ class Validate
     /**
      * 驗證email
      * @parameter $email
+     * @param $email
      * @return bool
-     **/
+     */
     public static function checkEmail($email): bool
     {
         $regex = '/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/';
@@ -18,8 +19,9 @@ class Validate
     /**
      * 驗證密碼
      * @parameter $password
+     * @param $password
      * @return bool
-     **/
+     */
     public static function checkPassword($password): bool
     {
         $regex = '/^[a-z|A-Z0-9]{6,12}$/';
@@ -29,8 +31,9 @@ class Validate
     /**
      * 驗證電話
      * @parameter $phone
+     * @param $phone
      * @return bool
-     **/
+     */
     public static function checkPhone($phone): bool
     {
         // 判斷是否為包含09開頭後8碼
@@ -41,8 +44,9 @@ class Validate
     /**
      * 驗證base64
      * @parameter $base64
+     * @param $base
      * @return bool
-     **/
+     */
     public static function checkDataBase64($base): bool
     {
         $regex = '/^data:image\/(jpg|gif|jpeg|png|mp4);base64,([^\"]*)$/';
@@ -52,8 +56,9 @@ class Validate
     /**
      * 驗證驗證碼
      * @parameter $verifyCode
+     * @param $verifyCode
      * @return bool
-     **/
+     */
     public static function checkVerifyCode($verifyCode): bool
     {
         // 判斷是否為4碼
