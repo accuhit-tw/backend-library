@@ -6,7 +6,6 @@ use Illuminate\Http\JsonResponse;
 
 class UtilResponse
 {
-
     /**
      * @param int $statusCode
      * @param string $message
