@@ -59,10 +59,10 @@ class UtilResponse
             case in_array($message, ["token error", "alg error", "signature error", "iat error", "user not found"]):
                 $status = 403;
                 break;
-            case  "token expired":
+            case "token expired":
                 $status = 409;
                 break;
-            case  "db error":
+            case "db error":
                 $status = 500;
                 break;
             default:
