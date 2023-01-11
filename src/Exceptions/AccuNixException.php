@@ -7,5 +7,4 @@ use GuzzleHttp\Exception\RequestException;
 
 class AccuNixException extends RequestException implements GuzzleException
 {
-
 }

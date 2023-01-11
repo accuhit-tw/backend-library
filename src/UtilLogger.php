@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Alex <alex.hsu@accuhit.net>
  * @date 2022-12-14 Alex init.

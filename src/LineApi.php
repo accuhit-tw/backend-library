@@ -29,7 +29,7 @@ class LineApi
         $uri = $this->url . '/v2/profile';
 
         $headers = [
-            'Authorization' => 'Bearer '. $accessToken,
+            'Authorization' => 'Bearer ' . $accessToken,
         ];
         $response = $this->client->get($uri, [
             'headers' => $headers,
