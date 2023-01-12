@@ -3,22 +3,16 @@
 namespace Accuhit\BackendLibrary;
 
 use Accuhit\BackendLibrary\Exceptions\UtilJwtException;
-use Dotenv\Dotenv;
 use Exception;
 
 class UtilJwt
 {
     private static string $secret;
 
-    private static UtilJwt $instance;
+    private static $instance;
 
     private function __construct()
     {
-        $dotenv = Dotenv::createImmutable(dirname(__DIR__));
-        $dotenv->load();
-
-        self::$instance = $this;
-        self::$secret = env("JWT_SECRET", "secret");
     }
 
     /**
