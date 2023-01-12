@@ -20,8 +20,6 @@ class AccuNixApi
 
     public function __construct($botId = null, $authToken = null)
     {
-        $dotenv = Dotenv::createImmutable(dirname(__DIR__));
-        $dotenv->load();
 
         $botId = $botId ?? env('ACCUNIX_LINEBOTID');
         $authToken = $authToken ?? env('ACCUNIX_LINEBOTID');
