@@ -17,6 +17,7 @@ class AccuNixApi
     protected string $apiHost;
     protected string $apiBotHost;
     protected array $headers;
+    protected int $timeout;
 
     public function __construct($botId = null, $authToken = null)
     {
@@ -24,7 +25,11 @@ class AccuNixApi
         $botId = $botId ?? env('ACCUNIX_LINEBOTID');
         $authToken = $authToken ?? env('ACCUNIX_LINEBOTID');
 
-        $this->client = new Client();
+        $this->timeout = env('GUZZLE_TIMEOUT', 60);
+
+        $this->client = new Client([
+            'timeout' => $this->timeout,
+        ]);
         $this->apiHost = env('ACCUNIX_URL') . $botId;
         $this->apiBotHost = env('ACCUNIX_BOT_URL') . $authToken;
         $this->headers = [
