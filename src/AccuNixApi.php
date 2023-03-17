@@ -5,6 +5,7 @@ namespace Accuhit\BackendLibrary;
 use Accuhit\BackendLibrary\Exceptions\AccuNixException;
 use Dotenv\Dotenv;
 use GuzzleHttp\Client;
+use InvalidArgumentException;
 
 /**
  * @class AccuNixApi
@@ -43,7 +44,7 @@ class AccuNixApi
      * @param $client
      * @return void
      */
-    public function setClient($client)
+    public function setClient($client): void
     {
         $this->client = $client;
     }
@@ -164,6 +165,7 @@ class AccuNixApi
      * @param int $days
      * @param string $description
      * @return array
+     * @throws InvalidArgumentException
      * @throws AccuNixException
      */
     public function createTag(string $name, int $days, string $description = ''): array
@@ -176,7 +178,7 @@ class AccuNixApi
             'description' => $description,
         ];
         if ($days == 0 || $days < -1 || $days > 365) {
-            throw new AccuNixException('days must be between 1 and 365 or set -1 to be forever');
+            throw new InvalidArgumentException('days must be between 1 and 365 or set -1 to be forever');
         }
 
         $res = $this->client->post($url, [
@@ -192,10 +194,19 @@ class AccuNixApi
      * @param array $userTokens
      * @param array $tags
      * @return array
+     * @throws InvalidArgumentException
      * @throws AccuNixException
      */
     public function addTag(array $userTokens, array $tags): array
     {
+        if (count($userTokens) > 10 || empty($userTokens)) {
+            throw new InvalidArgumentException("users 數量錯誤");
+        }
+
+        if (count($tags) > 3 || empty($tags)) {
+            throw new InvalidArgumentException("tags 數量錯誤");
+        }
+
         $uri = '/tag/add';
         $url = $this->apiHost . $uri;
         $params = [
@@ -216,10 +227,19 @@ class AccuNixApi
      * @param array $userTokens
      * @param array $tags
      * @return array
+     * @throws InvalidArgumentException
      * @throws AccuNixException
      */
     public function removeTag(array $userTokens, array $tags): array
     {
+        if (count($userTokens) > 10 || empty($userTokens)) {
+            throw new InvalidArgumentException("users 數量錯誤");
+        }
+
+        if (count($tags) > 3 || empty($tags)) {
+            throw new InvalidArgumentException("tags 數量錯誤");
+        }
+
         $uri = '/tag/remove';
         $url = $this->apiHost . $uri;
         $params = [
