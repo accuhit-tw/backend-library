@@ -16,6 +16,7 @@ class InvoiceApi
     private Client $client;
 
     private array $headers;
+    protected int $timeout;
     const TYPE_BARCODE = 'Barcode';
     const TYPE_QRCODE = 'QRCode';
 
@@ -29,7 +30,10 @@ class InvoiceApi
             'Content-Type' => 'application/x-www-form-urlencoded',
             'cache-control: no-cache'
         ];
-        $this->client = $client ?? new Client();
+        $this->timeout = env('GUZZLE_TIMEOUT', 60);
+        $this->client = $client ?? new Client([
+            'timeout' => $this->timeout,
+        ]);
     }
 
     /**
