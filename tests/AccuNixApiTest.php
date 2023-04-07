@@ -675,63 +675,74 @@ final class AccuNixApiTest extends TestCase
         $this->assertEquals('Success', $res['message']);
     }
 
+    /**
+     * TODO on error case unitTest
+     * @return void
+     */
     public function testReferralShareUser()
     {
-        $json = <<<JSON
-{
-    "data": {
-        "name": "NAME",
-        "picture": "url",
-        "share_count": 0
-    },
-    "message": "Success"
-}
-JSON;
-        $mock = new MockHandler([
-            new Response(200, [], $json),
-        ]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
+        // Arrange
+        $id = 1;
+        $userToken = "USERTOKEN";
+        $expectedResult = [
+            'message' => 'success',
+            'data'=> [
+                'name' => 'NAME',
+                'picture' => 'url',
+                'share_count' => 0,
+            ],
+        ];
 
-        $userToken = env('USER_TOKEN');
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('get')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
         $nix = new AccuNixApi();
-        $nix->setClient($client);
+        $nix->setClient($mockClient);
 
-        $id = 347;
+        // Act
         $res = $nix->referralShareUser($userToken, $id);
 
-        $this->assertIsArray($res['data']);
-        $this->assertArrayHasKey('name', $res['data']);
-        $this->assertArrayHasKey('picture', $res['data']);
-        $this->assertArrayHasKey('share_count', $res['data']);
-
-        $this->assertEquals('Success', $res['message']);
+        // Assert
+        $this->assertEquals($expectedResult, $res);
+        $this->assertEquals('success', $res['message']);
     }
 
+    /**
+     * TODO on error case unitTest
+     * @return void
+     */
     public function testGetShareLink()
     {
-        $json = <<<JSON
-{
-    "message": "{{ShareLink}}"
-}
-JSON;
-        $mock = new MockHandler([
-            new Response(200, [], $json),
-        ]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
+        // Arrange
+        $userToken = "USERTOKEN";
+        $expectedResult = [
+            'message' => 'ShareLink',
+        ];
 
-        $userToken = env('USER_TOKEN');
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('post')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
         $nix = new AccuNixApi();
-        $nix->setClient($client);
+        $nix->setClient($mockClient);
 
+        // Act
         $res = $nix->getShareLink($userToken);
-        $this->assertArrayHasKey('message', $res);
-        $this->assertIsString($res['message']);
+
+        // Assert
+        $this->assertEquals($expectedResult, $res);
+        $this->assertEquals('ShareLink', $res['message']);
     }
 
+    /**
+     * TODO on error case unitTest
+     * @return void
+     */
     public function testGetProfile()
     {
+        // Arrange
+        $userToken = "USERTOKEN";
         $json = <<<JSON
 {
     "info": {
@@ -828,46 +839,46 @@ JSON;
     ]
 }
 JSON;
-        $mock = new MockHandler([
-            new Response(200, [], $json),
-        ]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
+        $expectedResult = json_decode($json, true);
 
-        $userToken = env('USER_TOKEN');
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('get')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
         $nix = new AccuNixApi();
-        $nix->setClient($client);
+        $nix->setClient($mockClient);
 
+        // Act
         $res = $nix->getProfile($userToken);
-        $this->assertArrayHasKey('info', $res);
-        $this->assertArrayHasKey('tags', $res);
-        $this->assertArrayHasKey('member', $res);
-        $this->assertArrayHasKey('customize', $res);
-        $this->assertArrayHasKey('referrals', $res);
-        $this->assertArrayHasKey('authentication', $res);
+
+        // Assert
+        $this->assertEquals($expectedResult, $res);
     }
 
+    /**
+     * TODO on error case unitTest
+     * @return void
+     */
     public function testAuthenticate()
     {
-        $json = <<<JSON
-{
-    "message": "success"
-}
-JSON;
-        $mock = new MockHandler([
-            new Response(200, [], $json),
-        ]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
-
-        $userToken = env('USER_TOKEN');
+        $roleId = 1;
+        // Arrange
+        $userToken = "USERTOKEN";
+        $expectedResult = [
+            'message' => 'success',
+        ];
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('post')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
         $nix = new AccuNixApi();
-        $nix->setClient($client);
-        $roleId = 604;
+        $nix->setClient($mockClient);
 
+        // Act
         $res = $nix->authenticate($userToken, $roleId);
-        $this->assertArrayHasKey('message', $res);
-        $this->assertEquals('success', $res['message']);
 
+        // Assert
+        $this->assertEquals($expectedResult, $res);
+        $this->assertEquals('success', $res['message']);
     }
 }
