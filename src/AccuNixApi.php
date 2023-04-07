@@ -6,6 +6,11 @@ use Accuhit\BackendLibrary\Exceptions\AccuNixException;
 use Dotenv\Dotenv;
 use GuzzleHttp\Client;
 use InvalidArgumentException;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\MessageFormatter;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 /**
  * @class AccuNixApi
@@ -19,9 +24,11 @@ class AccuNixApi
     protected string $apiBotHost;
     protected array $headers;
     protected int $timeout;
+    protected string $logger;
 
     public function __construct($botId = null, $authToken = null)
     {
+        $path = env("LOG_DIR", sprintf("%s/storage/logs/accunix/", $_SERVER['DOCUMENT_ROOT'] ?? '.'));
 
         $botId = $botId ?? env('ACCUNIX_LINEBOTID');
         $authToken = $authToken ?? env('ACCUNIX_LINEBOTID');
@@ -31,6 +38,20 @@ class AccuNixApi
         $this->client = new Client([
             'timeout' => $this->timeout,
         ]);
+        $stack = HandlerStack::create();
+        $logger = new Logger('Log');
+        $logger->pushHandler(new StreamHandler($path . 'response_'.date('Y-m-d').'.log'), Logger::DEBUG);
+
+        $stack->push(Middleware::log(
+            $logger,
+            new MessageFormatter('HttpCode:{code} Method:{method} URI:{uri} Request:{req_body} Response:{res_body} ErrorMsg:{error}')
+        ));
+
+        $this->client = new Client([
+            'handler' => $stack,
+        ]);
+
+        $this->client = new Client();
         $this->apiHost = env('ACCUNIX_URL') . $botId;
         $this->apiBotHost = env('ACCUNIX_BOT_URL') . $authToken;
         $this->headers = [
@@ -70,7 +91,7 @@ class AccuNixApi
             'json' => $params,
         ]);
 
-        return json_decode($res->getBody()->getContents(), true);
+        return json_decode($res->getBody()->__toString(), true);
     }
 
     /**
@@ -120,7 +141,7 @@ class AccuNixApi
             'json' => $params,
         ]);
 
-        return json_decode($res->getBody()->getContents(), true);
+        return json_decode($res->getBody()->__toString(), true);
     }
 
     /**
@@ -156,7 +177,7 @@ class AccuNixApi
             'json' => $params,
         ]);
 
-        return json_decode($res->getBody()->getContents(), true);
+        return json_decode($res->getBody()->__toString(), true);
     }
 
     /**
@@ -186,7 +207,7 @@ class AccuNixApi
             'json' => $params,
         ]);
 
-        return json_decode($res->getBody()->getContents(), true);
+        return json_decode($res->getBody()->__toString(), true);
     }
 
     /**
@@ -219,7 +240,7 @@ class AccuNixApi
             'json' => $params,
         ]);
 
-        return json_decode($res->getBody()->getContents(), true);
+        return json_decode($res->getBody()->__toString(), true);
     }
 
     /**
@@ -252,7 +273,7 @@ class AccuNixApi
             'json' => $params,
         ]);
 
-        return json_decode($res->getBody()->getContents(), true);
+        return json_decode($res->getBody()->__toString(), true);
     }
 
     /**
@@ -273,7 +294,7 @@ class AccuNixApi
             ]
         ]);
 
-        return json_decode($res->getBody()->getContents(), true);
+        return json_decode($res->getBody()->__toString(), true);
     }
 
     /**
@@ -296,7 +317,7 @@ class AccuNixApi
             ]
         ]);
 
-        return json_decode($res->getBody()->getContents(), true);
+        return json_decode($res->getBody()->__toString(), true);
     }
 
 
@@ -320,7 +341,7 @@ class AccuNixApi
             'json' => $params,
         ]);
 
-        return json_decode($res->getBody()->getContents(), true);
+        return json_decode($res->getBody()->__toString(), true);
     }
 
     /**
@@ -343,7 +364,7 @@ class AccuNixApi
             ]
         ]);
 
-        return json_decode($res->getBody()->getContents(), true);
+        return json_decode($res->getBody()->__toString(), true);
     }
 
     /**
@@ -369,6 +390,6 @@ class AccuNixApi
             'json' => $params,
         ]);
 
-        return json_decode($res->getBody()->getContents(), true);
+        return json_decode($res->getBody()->__toString(), true);
     }
 }
