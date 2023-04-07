@@ -1,11 +1,14 @@
 <?php
 
 use Accuhit\BackendLibrary\AccuNixApi;
+use Accuhit\BackendLibrary\Exceptions\AccuNixException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use InvalidArgumentException;
 
 final class AccuNixApiTest extends TestCase
 {
@@ -16,30 +19,63 @@ final class AccuNixApiTest extends TestCase
         $this->assertNotNull($nix);
     }
 
-//    public function testRichMenuSwitch()
-//    {
-//        $userToken = env('USER_TOKEN');
-//        $richmenuGuid = "1837d920a7aHmg";
-//
-//        $nix = new AccuNixApi();
-//        $res = $nix->richMenuSwitch($userToken, $richmenuGuid);
-//
-//    }
+    public function testRichMenuSwitchSuccess()
+    {
+        // Arrange
+        $userToken = 'USER_TOKEN';
+        $richmenuGuid = 'RICHMENU_GUID';
+        $expectedResult = [
+            'message' => 'success',
+        ];
+
+        // Mock the HTTP client and response
+        $httpClientMock = $this->createMock(Client::class);
+        $httpClientMock->expects($this->once())
+            ->method('post')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
+        $nix = new AccuNixApi();
+        $nix->setClient($httpClientMock);
+
+        // Act
+        $result = $nix->richMenuSwitch($userToken, $richmenuGuid);
+
+        // Assert
+        $this->assertEquals($expectedResult, $result);
+    }
+
+    public function testRichMenuSwitchWith422Error()
+    {
+        // Arrange
+        $userToken = 'USER_TOKEN';
+        $richmenuGuid = 'RICHMENU_GUID';
+        $expectedResult = [
+            'message' => '輸入數值錯誤',
+        ];
+
+        // Mock the HTTP client and response
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->once())
+            ->method('post')
+            ->willThrowException(
+                new AccuNixException('Unprocessable Entity',
+                    new Request('POST', 'https://api-tf.accunix.net/api/line/{botid}/richmenu/switch'),
+                    new Response(422, [], json_encode($expectedResult)))
+            );
+        $nix = new AccuNixApi();
+        $nix->setClient($mockClient);
+
+        // Assert
+        $this->expectException(AccuNixException::class);
+        $this->expectExceptionMessage('Unprocessable Entity');
+
+        // Act
+        $nix->richMenuSwitch($userToken, $richmenuGuid);
+    }
 
     public function testSendMessageByCustomSuccess()
     {
-        $json = <<<JSON
-{
-    "message": "success"
-}
-JSON;
-        $mock = new MockHandler([
-            new Response(200, [], $json),
-        ]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
-
-        $userToken = env('USER_TOKEN');
+        // Arrange
+        $userToken = 'USER_TOKEN';
         $message = [
             [
                 "text" => "Hello, world",
@@ -47,254 +83,666 @@ JSON;
             ]
         ];
 
+        $expectedResult = [
+            'message' => 'success',
+        ];
+
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->once())
+            ->method('post')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
         $nix = new AccuNixApi();
-        $nix->setClient($client);
-        $res = $nix->sendMessageByCustom($userToken, $message);
-        $this->assertEquals('success', $res['message']);
+        $nix->setClient($mockClient);
+
+        // Act
+        $result = $nix->sendMessageByCustom($userToken, $message);
+
+        // Assert
+        $this->assertEquals($expectedResult, $result);
+        $this->assertEquals('success', $result['message']);
+    }
+
+    public function testSendMessageByCustomWith422Error()
+    {
+        // Arrange
+        $userToken = 'USER_TOKEN';
+        $message = [
+            [
+                "text" => "Hello, world",
+                "type" => "text"
+            ]
+        ];
+        $expectedResult = [
+            'message' => 'error: Invalid user_token',
+        ];
+
+        // Mock the HTTP client and response
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->once())
+            ->method('post')
+            ->willThrowException(
+                new AccuNixException('Unprocessable Entity',
+                    new Request('POST', 'https://api-tf.accunix.net/api/line/{botid}/richmenu/switch'),
+                    new Response(422, [], json_encode($expectedResult)))
+            );
+        $nix = new AccuNixApi();
+        $nix->setClient($mockClient);
+
+        // Assert
+        $this->expectException(AccuNixException::class);
+        $this->expectExceptionMessage('Unprocessable Entity');
+
+        // Act
+        $nix->sendMessageByCustom($userToken, $message);
     }
 
     public function testSendMessageWithGuidSuccess()
     {
-        $json = <<<JSON
-{
-    "message": "success"
-}
-JSON;
-        $mock = new MockHandler([
-            new Response(200, [], $json),
-        ]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
+        // Arrange
+        $userToken = 'USER_TOKEN';
+        $guid = "GUID";
 
-        $userToken = env('USER_TOKEN');
-        $guid = "1847a245df7D5R";
+        $expectedResult = [
+            'message' => 'success',
+        ];
 
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->once())
+            ->method('post')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
         $nix = new AccuNixApi();
-        $nix->setClient($client);
+        $nix->setClient($mockClient);
+
+        // Act
         $res = $nix->sendMessageByGuid($userToken, $guid);
+
+        // Assert
+        $this->assertEquals($expectedResult, $res);
         $this->assertEquals('success', $res['message']);
     }
 
-    public function testAddUserInfoSuccess()
+    public function testSendMessageWithGuidWith422Error()
     {
-        $json = <<<JSON
-{
-    "message": "success"
-}
-JSON;
-        $mock = new MockHandler([
-            new Response(200, [], $json),
-            new Response(200, [], $json),
-            new Response(200, [], $json),
-        ]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
+        // Arrange
+        $userToken = 'USER_TOKEN';
+        $guid = "GUID";
 
-        $userToken = env('USER_TOKEN');
+        //文件僅條列此錯誤
+        $expectedResult = [
+            'message' => 'error: Invalid user_token',
+        ];
+
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->once())
+            ->method('post')
+            ->willThrowException(
+                new AccuNixException('Unprocessable Entity',
+                    new Request('POST', 'https://api-tf.accunix.net/api/line/{botid}/message/send'),
+                    new Response(422, [], json_encode($expectedResult)))
+            );
         $nix = new AccuNixApi();
-        $nix->setClient($client);
+        $nix->setClient($mockClient);
 
-        $data = [];
-        $res = $nix->addUserInfo($userToken, $data);
-        $this->assertEquals('success', $res['message']);
+        // Assert
+        $this->expectException(AccuNixException::class);
+        $this->expectExceptionMessage('Unprocessable Entity');
 
-        $data = [];
-        $data['info'] = [
-            'name' => "林艾可",
-            'birth' => "1990-01-01",
-            'email' => "email@email.com",
-            'phone' => "0912345678",
-            'address' => "台北市松山區敦化南路一段2號5樓",
-            'gender' => "M",
-        ];
-        $res = $nix->addUserInfo($userToken, $data);
-        $this->assertEquals('success', $res['message']);
+        // Act
+        $nix->sendMessageByGuid($userToken, $guid);
+    }
 
-        $data['info'] = [
-            'name' => "林艾可",
-            'birth' => "1990-01-01",
-            'phone' => "0912345678",
-            'gender' => "M",
-        ];
-        $data['customize'] = [
-            'key-1',
-            'key-2',
-            'key-2',
-            'isDate' => [
-                'type' => 'date',
-                'value' => '2022-08-02',
+    public static function userInfoProvider(): array
+    {
+        return [
+            [
+                json_encode([])
+            ],
+            [
+                json_encode([
+                    'info' => [
+                        'name' => "林艾可",
+                        'birth' => "1990-01-01",
+                        'email' => "email@email.com",
+                        'phone' => "0912345678",
+                        'address' => "台北市松山區敦化南路一段2號5樓",
+                        'gender' => "M",
+                    ],
+                ])
+            ],
+            [
+                json_encode([
+                    'info' => [
+                        'name' => "林艾可",
+                        'birth' => "1990-01-01",
+                        'email' => "email@email.com",
+                        'phone' => "0912345678",
+                        'address' => "台北市松山區敦化南路一段2號5樓",
+                        'gender' => "M",
+                    ],
+                    'customize' => [
+                        'key-1',
+                        'key-2',
+                        'key-2',
+                        'isDate' => [
+                            'type' => 'date',
+                            'value' => '2022-08-02',
+                        ],
+                    ],
+                ])
             ],
         ];
-        $res = $nix->addUserInfo($userToken, $data);
-        $this->assertEquals('success', $res['message']);
-
     }
 
-    public function testCreateTag()
+    /**
+     *
+     * @dataProvider userInfoProvider
+     */
+    public function testAddUserInfoSuccess(string $data)
     {
-        $json = <<<JSON
-{
-    "message": "success"
-}
-JSON;
-        $mock = new MockHandler([
-            new Response(200, [], $json),
-        ]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
+        // Arrange
+        $userToken = 'USER_TOKEN';
+        $expectedResult = [
+            'message' => 'success',
+        ];
 
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('patch')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
         $nix = new AccuNixApi();
-        $nix->setClient($client);
-        $tagName = 'unitTest';
+        $nix->setClient($mockClient);
+
+        // Act
+        $res = $nix->addUserInfo($userToken, json_decode($data, true));
+
+        // Assert
+        $this->assertEquals($expectedResult, $res);
+        $this->assertEquals('success', $res['message']);
+    }
+
+    /**
+     *
+     * @dataProvider userInfoProvider
+     */
+    public function testAddUserInfoWith404Error(string $data)
+    {
+        // Arrange
+        $userToken = 'USER_TOKEN';
+        $expectedResult = [
+            'message' => 'error: {{ErrorToken}}',
+        ];
+
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('patch')
+            ->willThrowException(
+                new AccuNixException('Unprocessable Entity',
+                    new Request('POST', 'https://api-tf.accunix.net/api/line/{botid}/users/data'),
+                    new Response(404, [], json_encode($expectedResult)))
+            );
+        $nix = new AccuNixApi();
+        $nix->setClient($mockClient);
+
+        // Assert
+        $this->expectException(AccuNixException::class);
+        $this->expectExceptionMessage('Unprocessable Entity');
+
+        // Act
+        $res = $nix->addUserInfo($userToken, json_decode($data, true));
+    }
+
+    /**
+     *
+     * @dataProvider userInfoProvider
+     */
+    public function testAddUserInfoWith422Error(string $data)
+    {
+        // Arrange
+        $userToken = 'USER_TOKEN';
+        $expectedResult = [
+            'message' => 'error: {{ErrorToken}}',
+        ];
+
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('patch')
+            ->willThrowException(
+                new AccuNixException('Unprocessable Entity',
+                    new Request('POST', 'https://api-tf.accunix.net/api/line/{botid}/users/data'),
+                    new Response(422, [], json_encode($expectedResult)))
+            );
+        $nix = new AccuNixApi();
+        $nix->setClient($mockClient);
+
+        // Assert
+        $this->expectException(AccuNixException::class);
+        $this->expectExceptionMessage('Unprocessable Entity');
+
+        // Act
+        $nix->addUserInfo($userToken, json_decode($data, true));
+    }
+
+    public function testCreateTagSuccess()
+    {
+        // Arrange
+        $tagName = 'TAG_NAME';
         $days = 1;
-        $description = "unitTest";
+        $description = "DESCRIPTION";
+        $expectedResult = [
+            'message' => 'success',
+        ];
 
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('post')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
+        $nix = new AccuNixApi();
+        $nix->setClient($mockClient);
+
+        // Act
         $res = $nix->createTag($tagName, $days, $description);
+
+        // Assert
+        $this->assertEquals($expectedResult, $res);
         $this->assertEquals('success', $res['message']);
     }
 
-    public function testAddTag()
+    public function testCreateTagWith422Error()
     {
-        $json = <<<JSON
-{
-    "message": "success"
-}
-JSON;
-        $mock = new MockHandler([
-            new Response(200, [], $json),
-        ]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
+        // Arrange
+        $tagName = 'TAG_NAME';
+        $days = 1;
+        $description = "DESCRIPTION";
+        $expectedResult = [
+            'message' => 'name 名稱重複',
+        ];
 
-        $userToken = env('USER_TOKEN');
-        $tag = "unitTest";
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('post')
+            ->willThrowException(
+                new AccuNixException('Unprocessable Entity',
+                    new Request('POST', 'https://api-tf.accunix.net/api/line/{botid}/tag/create'),
+                    new Response(422, [], json_encode($expectedResult)))
+            );
         $nix = new AccuNixApi();
-        $nix->setClient($client);
+        $nix->setClient($mockClient);
 
-        $res = $nix->addTag([$userToken], [$tag]);
+        // Assert
+        $this->expectException(AccuNixException::class);
+        $this->expectExceptionMessage('Unprocessable Entity');
+
+        // Act
+        $res = $nix->createTag($tagName, $days, $description);
+    }
+
+    public static function invalidDayProvider(): array
+    {
+        return [
+            [0],
+            [366],
+            [367],
+        ];
+    }
+
+    /**
+     * @dataProvider invalidDayProvider
+     */
+    public function testCreateTagWithInvalidDayError(int $days)
+    {
+        // Arrange
+        $tagName = 'TAG_NAME';
+        $description = "DESCRIPTION";
+        $expectedResult = [
+            'message' => 'name 名稱重複',
+        ];
+
+        $mockClient = $this->createMock(Client::class);
+        $nix = new AccuNixApi();
+        $nix->setClient($mockClient);
+
+        // Assert
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('days must be between 1 and 365 or set -1 to be forever');
+
+        // Act
+        $res = $nix->createTag($tagName, $days, $description);
+    }
+
+    public static function tagProvider(): array
+    {
+        return [
+            [
+                [
+                    'USERTOKEN',
+                ],
+                [
+                    'TAG',
+                ]
+            ],
+            [
+                [
+                    'USERTOKEN',
+                    'USERTOKEN',
+                ],
+                [
+                    'TAG',
+                    'TAG',
+                ]
+            ],
+            [
+                [
+                    'USERTOKEN',
+                    'USERTOKEN',
+                    'USERTOKEN',
+                ],
+                [
+                    'TAG',
+                    'TAG',
+                    'TAG',
+                ]
+            ],
+
+        ];
+    }
+
+    /**
+     * @dataProvider tagProvider
+     */
+    public function testAddTagSuccess(array $users, array $tags)
+    {
+        // Arrange
+        $expectedResult = [
+            'message' => 'success',
+        ];
+
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('post')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
+        $nix = new AccuNixApi();
+        $nix->setClient($mockClient);
+
+        // Act
+        $res = $nix->addTag($users, $tags);
+
+        // Assert
+        $this->assertEquals($expectedResult, $res);
         $this->assertEquals('success', $res['message']);
     }
 
-    public function testRemoveTag()
+    public static function tagInvalidTagsProvider(): array
     {
-        $json = <<<JSON
-{
-    "message": "success"
-}
-JSON;
-        $mock = new MockHandler([
-            new Response(200, [], $json),
-        ]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
+        return [
+            [
+                [
+                    'USERTOKEN',
+                ],
+                [
+                ]
+            ],
+            [
+                [
+                    'USERTOKEN',
+                    'USERTOKEN',
+                ],
+                [
+                    'TAG',
+                    'TAG',
+                    'TAG',
+                    'TAG',
+                ]
+            ],
+        ];
+    }
 
-        $userToken = env('USER_TOKEN');
-        $tag = "unitTest";
+    /**
+     * @dataProvider tagInvalidTagsProvider
+     */
+    public function testAddTagWithInvalidTagsCount(array $users, array $tags)
+    {
+        // Arrange
+        $expectedResult = [
+            'message' => 'userTokens 必需為陣列',
+        ];
+
+        $mockClient = $this->createMock(Client::class);
         $nix = new AccuNixApi();
-        $nix->setClient($client);
+        $nix->setClient($mockClient);
 
-        $res = $nix->removeTag([$userToken], [$tag]);
+        // Assert
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('tags 數量錯誤');
+
+        // Act
+        $res = $nix->addTag($users, $tags);
+    }
+
+
+    public static function tagInvalidUsersProvider(): array
+    {
+        return [
+            [
+                [
+                ],
+                [
+                    'TAG',
+                ]
+            ],
+            [
+                [
+                    'USERTOKEN',
+                    'USERTOKEN',
+                    'USERTOKEN',
+                    'USERTOKEN',
+                    'USERTOKEN',
+                    'USERTOKEN',
+                    'USERTOKEN',
+                    'USERTOKEN',
+                    'USERTOKEN',
+                    'USERTOKEN',
+                    'USERTOKEN',
+                ],
+                [
+                    'TAG',
+                ]
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider tagInvalidUsersProvider
+     */
+    public function testAddTagWithInvalidUsersCount(array $users, array $tags)
+    {
+        // Arrange
+        $expectedResult = [
+            'message' => 'userTokens 必需為陣列',
+        ];
+
+        $mockClient = $this->createMock(Client::class);
+        $nix = new AccuNixApi();
+        $nix->setClient($mockClient);
+
+        // Assert
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('users 數量錯誤');
+
+        // Act
+        $res = $nix->addTag($users, $tags);
+    }
+
+    /**
+     * @dataProvider tagProvider
+     */
+    public function testRemoveTagSuccess(array $users, $tags)
+    {
+        // Arrange
+        $expectedResult = [
+            'message' => 'success',
+        ];
+
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('post')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
+        $nix = new AccuNixApi();
+        $nix->setClient($mockClient);
+
+        // Act
+        $res = $nix->removeTag($users, $tags);
+
+        // Assert
+        $this->assertEquals($expectedResult, $res);
         $this->assertEquals('success', $res['message']);
     }
 
-    public function testGetReferralInfo()
+    /**
+     * @dataProvider tagInvalidTagsProvider
+     */
+    public function testRemoveTagWithInvalidTagsCount(array $users, array $tags)
     {
-        $json = <<<JSON
-{
-    "data": {
-        "name": "推薦好友目標",
-        "end_at": "2021-01-22 18:52:00",
-        "start_at": "2021-01-13 18:52:00",
-        "is_active": 0,
-        "created_at": "2021-01-13 18:52:32",
-        "updated_at": "2021-01-14 18:13:56",
-        "description": "說明",
-        "total_share_count": 0
-    },
-    "message": "Success"
-}
-JSON;
-        $mock = new MockHandler([
-            new Response(200, [], $json),
-        ]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
+        // Arrange
+        $expectedResult = [
+            'message' => 'userTokens 必需為陣列',
+        ];
 
+        $mockClient = $this->createMock(Client::class);
         $nix = new AccuNixApi();
-        $nix->setClient($client);
+        $nix->setClient($mockClient);
 
+        // Assert
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('tags 數量錯誤');
+
+        // Act
+        $res = $nix->removeTag($users, $tags);
+    }
+
+
+    /**
+     * @dataProvider tagInvalidUsersProvider
+     */
+    public function testRemoveTagWithInvalidUsersCount(array $users, array $tags)
+    {
+        // Arrange
+        $expectedResult = [
+            'message' => 'userTokens 必需為陣列',
+        ];
+
+        $mockClient = $this->createMock(Client::class);
+        $nix = new AccuNixApi();
+        $nix->setClient($mockClient);
+
+        // Assert
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('users 數量錯誤');
+
+        // Act
+        $res = $nix->removeTag($users, $tags);
+    }
+
+
+    public function testGetReferralInfoSuccess()
+    {
+        // Arrange
         $id = 347;
+        $expectedResult = [
+            "data" => [
+                "name" => "推薦好友目標",
+                "end_at" => "2021-01-22 18:52:00",
+                "start_at" => "2021-01-13 18:52:00",
+                "is_active" => 0,
+                "created_at" => "2021-01-13 18:52:32",
+                "updated_at" => "2021-01-14 18:13:56",
+                "description" => "說明",
+                "total_share_count" => 0
+            ],
+            "message" => "Success"
+        ];
+
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('get')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
+        $nix = new AccuNixApi();
+        $nix->setClient($mockClient);
+
         $res = $nix->getReferralInfo($id);
 
-        $this->assertIsArray($res['data']);
-        $this->assertArrayHasKey('name', $res['data']);
-        $this->assertArrayHasKey('end_at', $res['data']);
-        $this->assertArrayHasKey('start_at', $res['data']);
-        $this->assertArrayHasKey('is_active', $res['data']);
-        $this->assertArrayHasKey('created_at', $res['data']);
-        $this->assertArrayHasKey('updated_at', $res['data']);
-        $this->assertArrayHasKey('description', $res['data']);
-        $this->assertArrayHasKey('total_share_count', $res['data']);
+        // Act
+        $this->assertEquals($expectedResult, $res);
         $this->assertEquals('Success', $res['message']);
     }
 
+    /**
+     * TODO on error case unitTest
+     * @return void
+     */
     public function testReferralShareUser()
     {
-        $json = <<<JSON
-{
-    "data": {
-        "name": "NAME",
-        "picture": "url",
-        "share_count": 0
-    },
-    "message": "Success"
-}
-JSON;
-        $mock = new MockHandler([
-            new Response(200, [], $json),
-        ]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
+        // Arrange
+        $id = 1;
+        $userToken = "USERTOKEN";
+        $expectedResult = [
+            'message' => 'success',
+            'data'=> [
+                'name' => 'NAME',
+                'picture' => 'url',
+                'share_count' => 0,
+            ],
+        ];
 
-        $userToken = env('USER_TOKEN');
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('get')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
         $nix = new AccuNixApi();
-        $nix->setClient($client);
+        $nix->setClient($mockClient);
 
-        $id = 347;
+        // Act
         $res = $nix->referralShareUser($userToken, $id);
 
-        $this->assertIsArray($res['data']);
-        $this->assertArrayHasKey('name', $res['data']);
-        $this->assertArrayHasKey('picture', $res['data']);
-        $this->assertArrayHasKey('share_count', $res['data']);
-
-        $this->assertEquals('Success', $res['message']);
+        // Assert
+        $this->assertEquals($expectedResult, $res);
+        $this->assertEquals('success', $res['message']);
     }
 
+    /**
+     * TODO on error case unitTest
+     * @return void
+     */
     public function testGetShareLink()
     {
-        $json = <<<JSON
-{
-    "message": "{{ShareLink}}"
-}
-JSON;
-        $mock = new MockHandler([
-            new Response(200, [], $json),
-        ]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
+        // Arrange
+        $userToken = "USERTOKEN";
+        $expectedResult = [
+            'message' => 'ShareLink',
+        ];
 
-        $userToken = env('USER_TOKEN');
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('post')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
         $nix = new AccuNixApi();
-        $nix->setClient($client);
+        $nix->setClient($mockClient);
 
+        // Act
         $res = $nix->getShareLink($userToken);
-        $this->assertArrayHasKey('message', $res);
-        $this->assertIsString($res['message']);
+
+        // Assert
+        $this->assertEquals($expectedResult, $res);
+        $this->assertEquals('ShareLink', $res['message']);
     }
 
+    /**
+     * TODO on error case unitTest
+     * @return void
+     */
     public function testGetProfile()
     {
+        // Arrange
+        $userToken = "USERTOKEN";
         $json = <<<JSON
 {
     "info": {
@@ -391,46 +839,46 @@ JSON;
     ]
 }
 JSON;
-        $mock = new MockHandler([
-            new Response(200, [], $json),
-        ]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
+        $expectedResult = json_decode($json, true);
 
-        $userToken = env('USER_TOKEN');
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('get')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
         $nix = new AccuNixApi();
-        $nix->setClient($client);
+        $nix->setClient($mockClient);
 
+        // Act
         $res = $nix->getProfile($userToken);
-        $this->assertArrayHasKey('info', $res);
-        $this->assertArrayHasKey('tags', $res);
-        $this->assertArrayHasKey('member', $res);
-        $this->assertArrayHasKey('customize', $res);
-        $this->assertArrayHasKey('referrals', $res);
-        $this->assertArrayHasKey('authentication', $res);
+
+        // Assert
+        $this->assertEquals($expectedResult, $res);
     }
 
+    /**
+     * TODO on error case unitTest
+     * @return void
+     */
     public function testAuthenticate()
     {
-        $json = <<<JSON
-{
-    "message": "success"
-}
-JSON;
-        $mock = new MockHandler([
-            new Response(200, [], $json),
-        ]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler' => $handler]);
-
-        $userToken = env('USER_TOKEN');
+        $roleId = 1;
+        // Arrange
+        $userToken = "USERTOKEN";
+        $expectedResult = [
+            'message' => 'success',
+        ];
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('post')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
         $nix = new AccuNixApi();
-        $nix->setClient($client);
-        $roleId = 604;
+        $nix->setClient($mockClient);
 
+        // Act
         $res = $nix->authenticate($userToken, $roleId);
-        $this->assertArrayHasKey('message', $res);
-        $this->assertEquals('success', $res['message']);
 
+        // Assert
+        $this->assertEquals($expectedResult, $res);
+        $this->assertEquals('success', $res['message']);
     }
 }

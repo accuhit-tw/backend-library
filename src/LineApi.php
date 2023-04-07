@@ -7,13 +7,17 @@ use GuzzleHttp\Client;
 class LineApi
 {
     public string $url;
+    protected int $timeout;
     private Client $client;
 
     public function __construct(Client $client = null)
     {
         $this->url = 'https://api.line.me';
+        $this->timeout = env('GUZZLE_TIMEOUT', 60);
 
-        $this->client = $client ?? new Client();
+        $this->client = $client ?? new Client([
+            'timeout' => $this->timeout,
+        ]);
     }
 
     /**
