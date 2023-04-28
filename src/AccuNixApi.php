@@ -35,9 +35,6 @@ class AccuNixApi
 
         $this->timeout = env('GUZZLE_TIMEOUT', 60);
 
-        $this->client = new Client([
-            'timeout' => $this->timeout,
-        ]);
         $stack = HandlerStack::create();
         $logger = new Logger('Log');
         $logger->pushHandler(new StreamHandler($path . 'response_'.date('Y-m-d').'.log'), Logger::DEBUG);
@@ -48,10 +45,9 @@ class AccuNixApi
         ));
 
         $this->client = new Client([
+            'timeout' => $this->timeout,
             'handler' => $stack,
         ]);
-
-        $this->client = new Client();
         $this->apiHost = env('ACCUNIX_URL') . $botId;
         $this->apiBotHost = env('ACCUNIX_BOT_URL') . $authToken;
         $this->headers = [
