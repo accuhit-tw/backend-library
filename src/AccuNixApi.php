@@ -388,4 +388,27 @@ class AccuNixApi
 
         return json_decode($res->getBody()->__toString(), true);
     }
+
+    /**
+     * 剝除身份
+     * @param string $userToken
+     * @param int $roleId
+     * @throws AccuNixException
+     */
+    public function authenticateRemove(string $userToken, int $roleId)
+    {
+        $uri = '/authenticate/role/remove';
+        $url = $this->apiHost . $uri;
+        $params = [
+            'roleId' => $roleId,
+            'userToken' => $userToken,
+        ];
+
+        $res = $this->client->post($url, [
+            'headers' => $this->headers,
+            'json' => $params,
+        ]);
+        
+        return json_decode($res->getBody()->__toString(), true);
+    }
 }
