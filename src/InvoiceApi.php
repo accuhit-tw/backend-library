@@ -37,6 +37,7 @@ class InvoiceApi
     }
 
     /**
+     * 取得發票條碼類型
      * @return array
      */
     public static function getTypeList(): array
