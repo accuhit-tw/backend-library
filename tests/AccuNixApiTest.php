@@ -861,8 +861,8 @@ JSON;
      */
     public function testAuthenticate()
     {
-        $roleId = 1;
         // Arrange
+        $roleId = 1;
         $userToken = "USERTOKEN";
         $expectedResult = [
             'message' => 'success',
@@ -880,5 +880,29 @@ JSON;
         // Assert
         $this->assertEquals($expectedResult, $res);
         $this->assertEquals('success', $res['message']);
+    }
+
+    public function testAuthenticateRemove()
+    {
+        // Arrange
+        $roleId = 1;
+        $userToken = "USERTOKEN";
+        $expectedResult = [
+            'message' => 'success',
+        ];
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('post')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
+        $nix = new AccuNixApi();
+        $nix->setClient($mockClient);
+
+        // Act
+        $res = $nix->authenticateRemove($userToken, $roleId);
+
+        // Act
+        $this->assertEquals($expectedResult, $res);
+        $this->assertEquals('success', $res['message']);
+
     }
 }
