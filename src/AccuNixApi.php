@@ -3,7 +3,6 @@
 namespace Accuhit\BackendLibrary;
 
 use Accuhit\BackendLibrary\Exceptions\AccuNixException;
-use Dotenv\Dotenv;
 use GuzzleHttp\Client;
 use InvalidArgumentException;
 use GuzzleHttp\HandlerStack;
