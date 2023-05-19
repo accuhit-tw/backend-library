@@ -12,6 +12,8 @@ composer:
   # The job's stage (build, test or deploy).
   image: composer:latest
   stage: build
+  tags:
+    - php
   # What to run on the job.
   script:
     - composer install --no-scripts
@@ -19,10 +21,14 @@ composer:
 
 phpunit:
   stage: test
+  tags:
+    - php
   script:
     - ./vendor/bin/phpunit --configuration ./phpunit.xml ./tests --colors=never
 
 codestyle:
   stage: test
+  tags:
+    - php
   script:
     - ./vendor/bin/phpcs --standard=PSR2 --runtime-set ignore_warnings_on_exit true --extensions=php src
