@@ -12,6 +12,8 @@ composer:
   # The job's stage (build, test or deploy).
   image: composer:latest
   stage: build
+  tags:
+    - php
   # What to run on the job.
   script:
     - composer install --no-scripts
