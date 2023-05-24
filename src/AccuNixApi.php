@@ -36,7 +36,7 @@ class AccuNixApi
 
         $stack = HandlerStack::create();
         $logger = new Logger('Log');
-        $logger->pushHandler(new StreamHandler($path . 'response_'.date('Y-m-d').'.log'), Logger::DEBUG);
+        $logger->pushHandler(new StreamHandler(sprintf($path . 'response_%s.log', date('Y-m-d')), Logger::INFO));
 
         $stack->push(Middleware::log(
             $logger,

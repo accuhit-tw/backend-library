@@ -170,6 +170,33 @@ UtilResponse::successResponse('success', ['userId' => 'U12345678']);
 UtilResponse::errorResponse('something error');
 ```
 
+### Service
+
+| Class         | Class description        |
+|---------------|--------------------------|
+| SmsService    | Service for sending sms  |
+
+#### SmsService
+
+| Function | Function description                           |
+|----------|------------------------------------------------|
+| create   | create valid code for sms                      |
+| send     | send message, require phone, message, platform |
+
+
+#### Example
+```php
+<?php
+
+use Accuhit\BackendLibrary\SmsService;
+
+$smsService = new SmsService();
+$code = $smsService->create();
+$code = $smsService->create(6);
+$smsService->send("0900000000", "your message", "accuhit");
+
+```
+
 ## Defining Semantic Versioning
 
 Allow rule from [Semantic Versioning 2.0.0](https://semver.org/)
