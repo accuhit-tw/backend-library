@@ -1,5 +1,6 @@
 <?php
 
+namespace Accuhit\Tests;
 
 use Accuhit\BackendLibrary\Exceptions\InvoiceException;
 use Accuhit\BackendLibrary\InvoiceApi;

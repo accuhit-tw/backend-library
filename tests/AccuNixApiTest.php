@@ -1,10 +1,10 @@
 <?php
 
+namespace Accuhit\Tests;
+
 use Accuhit\BackendLibrary\AccuNixApi;
 use Accuhit\BackendLibrary\Exceptions\AccuNixException;
 use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
@@ -686,7 +686,7 @@ final class AccuNixApiTest extends TestCase
         $userToken = "USERTOKEN";
         $expectedResult = [
             'message' => 'success',
-            'data'=> [
+            'data' => [
                 'name' => 'NAME',
                 'picture' => 'url',
                 'share_count' => 0,

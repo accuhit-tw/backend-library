@@ -1,5 +1,7 @@
 <?php
 
+namespace Accuhit\Tests;
+
 use Accuhit\BackendLibrary\LineApi;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
