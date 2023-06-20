@@ -196,30 +196,5 @@ $code = $smsService->create(6);
 $smsService->send("0900000000", "your message", "accuhit");
 
 ```
-
-## Release Tips
-
-### Defining Semantic Versioning
-Allow rule from [Semantic Versioning 2.0.0](https://semver.org/)
-
-### Create tag
-- on shell
-```shell
-git tags v0.0.1 -m "<your message here>"
-#push your tag to remote
-git push origin v0.0.1
-```
-
-### Write Release Note for tag
-[**link**](https://git.accuhit.com.tw/poc/backend-library/-/tags)  
-Example
-- **Features**
-  - feature 1
-  - feature 2
-  - feature 3
-- **Bug Fixes**
-  - fix 1
-  - fix 2
-  - fix 3
-- **Dependencies**
-  -  {library} from {origin version } to { new version }
+## Contributing
+For details on contributing to this repository, see the [contributing guide](./CONTRIBUTING.md).
