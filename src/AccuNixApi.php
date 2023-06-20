@@ -29,8 +29,8 @@ class AccuNixApi
     {
         $path = env("LOG_DIR", sprintf("%s/storage/logs/accunix/", $_SERVER['DOCUMENT_ROOT'] ?? '.'));
 
-        $botId = $botId ?? env('ACCUNIX_LINEBOTID');
-        $authToken = $authToken ?? env('ACCUNIX_LINEBOTID');
+        $botId = $botId ?? env('ACCUNIX_LINE_BOT_ID');
+        $authToken = $authToken ?? env('ACCUNIX_AUTH_TOKEN');
 
         $this->timeout = env('GUZZLE_TIMEOUT', 60);
 
@@ -48,10 +48,10 @@ class AccuNixApi
             'handler' => $stack,
         ]);
         $this->apiHost = env('ACCUNIX_URL') . $botId;
-        $this->apiBotHost = env('ACCUNIX_BOT_URL') . $authToken;
+        $this->apiBotHost = env('ACCUNIX_BOT_URL') . $botId;
         $this->headers = [
             'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer ' . env('ACCUNIX_AUTHTOKEN'),
+            'Authorization' => 'Bearer ' . $authToken,
         ];
     }
 
