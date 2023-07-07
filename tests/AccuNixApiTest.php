@@ -578,9 +578,7 @@ final class AccuNixApiTest extends TestCase
     public function testRemoveTagSuccess(array $users, $tags)
     {
         // Arrange
-        $expectedResult = [
-            'message' => 'success',
-        ];
+        $expectedResult = 'success';
 
         $mockClient = $this->createMock(Client::class);
         $mockClient->expects($this->any())
@@ -594,7 +592,6 @@ final class AccuNixApiTest extends TestCase
 
         // Assert
         $this->assertEquals($expectedResult, $res);
-        $this->assertEquals('success', $res['message']);
     }
 
     /**
