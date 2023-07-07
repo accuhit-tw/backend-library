@@ -243,11 +243,11 @@ class AccuNixApi
      * 剝除標籤
      * @param array $userTokens
      * @param array $tags
-     * @return array
+     * @return mixed
      * @throws InvalidArgumentException
      * @throws AccuNixException
      */
-    public function removeTag(array $userTokens, array $tags): array
+    public function removeTag(array $userTokens, array $tags): mixed
     {
         if (count($userTokens) > 10 || empty($userTokens)) {
             throw new InvalidArgumentException("users 數量錯誤");
