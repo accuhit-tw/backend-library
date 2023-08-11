@@ -410,4 +410,27 @@ class AccuNixApi
         
         return json_decode($res->getBody()->__toString(), true);
     }
+
+    /**
+     * 發送票券
+     * @param string $userToken
+     * @param string $campaignGuid
+     * @throws AccuNixException
+     */
+    public function sendCoupon(string $userToken, string $campaignGuid)
+    {
+        $uri = '/coupon-campaign/gift';
+        $url = $this->apiHost . $uri;
+        $params = [
+            'campaignGuid' => $campaignGuid,
+            'userToken' => $userToken,
+        ];
+
+        $res = $this->client->post($url, [
+            'headers' => $this->headers,
+            'json' => $params,
+        ]);
+
+        return json_decode($res->getBody()->__toString(), true);
+    }
 }
