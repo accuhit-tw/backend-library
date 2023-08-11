@@ -82,8 +82,8 @@ class SmsService
         $response = $this->client->get($this->url, [
             'query' => [
                 'code' => $hash,
-                'phone' => $phone,
-                'msg' => $msg,
+                'mobile' => $phone,
+                'message' => $msg,
                 'platform' => $platform,
             ]
         ]);
