@@ -3,7 +3,6 @@
 namespace Accuhit\BackendLibrary;
 
 use Accuhit\BackendLibrary\Exceptions\AccuNixException;
-use Dotenv\Dotenv;
 use GuzzleHttp\Client;
 use InvalidArgumentException;
 use GuzzleHttp\HandlerStack;
@@ -30,14 +29,14 @@ class AccuNixApi
     {
         $path = env("LOG_DIR", sprintf("%s/storage/logs/accunix/", $_SERVER['DOCUMENT_ROOT'] ?? '.'));
 
-        $botId = $botId ?? env('ACCUNIX_LINEBOTID');
-        $authToken = $authToken ?? env('ACCUNIX_LINEBOTID');
+        $botId = $botId ?? env('ACCUNIX_LINE_BOT_ID');
+        $authToken = $authToken ?? env('ACCUNIX_AUTH_TOKEN');
 
         $this->timeout = env('GUZZLE_TIMEOUT', 60);
 
         $stack = HandlerStack::create();
         $logger = new Logger('Log');
-        $logger->pushHandler(new StreamHandler($path . 'response_'.date('Y-m-d').'.log'), Logger::DEBUG);
+        $logger->pushHandler(new StreamHandler(sprintf($path . 'response_%s.log', date('Y-m-d')), Logger::INFO));
 
         $stack->push(Middleware::log(
             $logger,
@@ -49,10 +48,10 @@ class AccuNixApi
             'handler' => $stack,
         ]);
         $this->apiHost = env('ACCUNIX_URL') . $botId;
-        $this->apiBotHost = env('ACCUNIX_BOT_URL') . $authToken;
+        $this->apiBotHost = env('ACCUNIX_BOT_URL') . $botId;
         $this->headers = [
             'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer ' . env('ACCUNIX_AUTHTOKEN'),
+            'Authorization' => 'Bearer ' . $authToken,
         ];
     }
 
@@ -409,6 +408,29 @@ class AccuNixApi
             'json' => $params,
         ]);
         
+        return json_decode($res->getBody()->__toString(), true);
+    }
+
+    /**
+     * 發送票券
+     * @param string $userToken
+     * @param string $campaignGuid
+     * @throws AccuNixException
+     */
+    public function sendCoupon(string $userToken, string $campaignGuid)
+    {
+        $uri = '/coupon-campaign/gift';
+        $url = $this->apiHost . $uri;
+        $params = [
+            'campaignGuid' => $campaignGuid,
+            'userToken' => $userToken,
+        ];
+
+        $res = $this->client->post($url, [
+            'headers' => $this->headers,
+            'json' => $params,
+        ]);
+
         return json_decode($res->getBody()->__toString(), true);
     }
 }

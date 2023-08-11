@@ -1,7 +1,7 @@
 # Backend Library
 
-AccuHit 常用套件庫
-
+AccuHit 常用套件庫  
+[RSS](https://git.accuhit.com.tw/poc/backend-library/-/tags?feed_token=iDazCzWiHM8_zdAzHpRW&format=atom)
 ## Requirements
 
 | Dependency                                          | Requirement |
@@ -46,6 +46,7 @@ composer require "accuhit/backend-library:^1.1"
 | getShareLink         | 取得好友分享連結              |
 | getProfile           | 取得好友資訊                 |
 | authenticate         | 貼上身份                     |
+| sendCoupon           | 發送優惠券                   |
 
 
 ### InvoiceApi
@@ -170,6 +171,31 @@ UtilResponse::successResponse('success', ['userId' => 'U12345678']);
 UtilResponse::errorResponse('something error');
 ```
 
-## Defining Semantic Versioning
+### Service
 
-Allow rule from [Semantic Versioning 2.0.0](https://semver.org/)
+| Class         | Class description        |
+|---------------|--------------------------|
+| SmsService    | Service for sending sms  |
+
+#### SmsService
+
+| Function | Function description                           |
+|----------|------------------------------------------------|
+| create   | create valid code for sms                      |
+| send     | send message, require phone, message, platform |
+
+
+#### Example
+```php
+<?php
+
+use Accuhit\BackendLibrary\SmsService;
+
+$smsService = new SmsService();
+$code = $smsService->create();
+$code = $smsService->create(6);
+$smsService->send("0900000000", "your message", "accuhit");
+
+```
+## Contributing
+For details on contributing to this repository, see the [contributing guide](./CONTRIBUTING.md).

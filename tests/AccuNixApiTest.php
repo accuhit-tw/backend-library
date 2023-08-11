@@ -1,10 +1,10 @@
 <?php
 
+namespace Accuhit\Tests;
+
 use Accuhit\BackendLibrary\AccuNixApi;
 use Accuhit\BackendLibrary\Exceptions\AccuNixException;
 use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
@@ -683,7 +683,7 @@ final class AccuNixApiTest extends TestCase
         $userToken = "USERTOKEN";
         $expectedResult = [
             'message' => 'success',
-            'data'=> [
+            'data' => [
                 'name' => 'NAME',
                 'picture' => 'url',
                 'share_count' => 0,
@@ -858,8 +858,8 @@ JSON;
      */
     public function testAuthenticate()
     {
-        $roleId = 1;
         // Arrange
+        $roleId = 1;
         $userToken = "USERTOKEN";
         $expectedResult = [
             'message' => 'success',
@@ -877,5 +877,54 @@ JSON;
         // Assert
         $this->assertEquals($expectedResult, $res);
         $this->assertEquals('success', $res['message']);
+    }
+
+    public function testAuthenticateRemove()
+    {
+        // Arrange
+        $roleId = 1;
+        $userToken = "USERTOKEN";
+        $expectedResult = [
+            'message' => 'success',
+        ];
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('post')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
+        $nix = new AccuNixApi();
+        $nix->setClient($mockClient);
+
+        // Act
+        $res = $nix->authenticateRemove($userToken, $roleId);
+
+        // Act
+        $this->assertEquals($expectedResult, $res);
+        $this->assertEquals('success', $res['message']);
+
+    }
+
+    public function testSendCoupon()
+    {
+        // Arrange
+        $campaignGuid = 1;
+        $userToken = "USERTOKEN";
+        
+        $expectedResult = [
+            "message" => $campaignGuid.":領取成功",
+            "couponsCount" => 1
+        ];
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('post')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
+        $nix = new AccuNixApi();
+        $nix->setClient($mockClient);
+
+        // Act
+        $res = $nix->sendCoupon($userToken, $campaignGuid);
+
+        // Act
+        $this->assertEquals($expectedResult, $res);
+        $this->assertEquals($campaignGuid.":領取成功", $res['message']);
     }
 }
