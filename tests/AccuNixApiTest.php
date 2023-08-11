@@ -902,4 +902,29 @@ JSON;
         $this->assertEquals('success', $res['message']);
 
     }
+
+    public function testSendCoupon()
+    {
+        // Arrange
+        $campaignGuid = 1;
+        $userToken = "USERTOKEN";
+        
+        $expectedResult = [
+            "message" => $campaignGuid.":領取成功",
+            "couponsCount" => 1
+        ];
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('post')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
+        $nix = new AccuNixApi();
+        $nix->setClient($mockClient);
+
+        // Act
+        $res = $nix->sendCoupon($userToken, $campaignGuid);
+
+        // Act
+        $this->assertEquals($expectedResult, $res);
+        $this->assertEquals($campaignGuid.":領取成功", $res['message']);
+    }
 }
