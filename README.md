@@ -46,6 +46,7 @@ composer require "accuhit/backend-library:^1.1"
 | getShareLink         | 取得好友分享連結              |
 | getProfile           | 取得好友資訊                 |
 | authenticate         | 貼上身份                     |
+| sendCoupon           | 發送優惠券                   |
 
 
 ### InvoiceApi
