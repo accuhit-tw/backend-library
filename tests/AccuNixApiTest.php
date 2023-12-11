@@ -903,6 +903,57 @@ JSON;
 
     }
 
+    /**
+     * TODO on error case unitTest
+     * @return void
+     */
+    public function testAuthenticateByGuid()
+    {
+        // Arrange
+        $guid = '27a058f4796c4';
+        $userToken = "USERTOKEN";
+        $expectedResult = [
+            'message' => 'success',
+        ];
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('post')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
+        $nix = new AccuNixApi();
+        $nix->setClient($mockClient);
+
+        // Act
+        $res = $nix->authenticateByGuid($userToken, $guid);
+
+        // Assert
+        $this->assertEquals($expectedResult, $res);
+        $this->assertEquals('success', $res['message']);
+    }
+
+    public function testAuthenticateRemoveByGuid()
+    {
+        // Arrange
+        $guid = '27a058f4796c4';
+        $userToken = "USERTOKEN";
+        $expectedResult = [
+            'message' => 'success',
+        ];
+        $mockClient = $this->createMock(Client::class);
+        $mockClient->expects($this->any())
+            ->method('post')
+            ->willReturn(new Response(200, [], json_encode($expectedResult)));
+        $nix = new AccuNixApi();
+        $nix->setClient($mockClient);
+
+        // Act
+        $res = $nix->authenticateRemoveByGuid($userToken, $guid);
+
+        // Act
+        $this->assertEquals($expectedResult, $res);
+        $this->assertEquals('success', $res['message']);
+
+    }
+
     public function testSendCoupon()
     {
         // Arrange
