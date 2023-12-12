@@ -412,6 +412,55 @@ class AccuNixApi
     }
 
     /**
+     * 貼上身份(使用guid)
+     * @param string $userToken
+     * @param string $roleGuid
+     * @param array $data
+     * @return array
+     * @throws AccuNixException
+     */
+    public function authenticateByGuid(string $userToken, string $roleGuid, array $data = []): array
+    {
+        $uri = '/authenticate';
+        $url = $this->apiHost . $uri;
+        $params = [
+            'data' => $data,
+            'guid' => $roleGuid,
+            'userToken' => $userToken,
+        ];
+
+        $res = $this->client->post($url, [
+            'headers' => $this->headers,
+            'json' => $params,
+        ]);
+
+        return json_decode($res->getBody()->__toString(), true);
+    }
+
+    /**
+     * 剝除身份(使用guid)
+     * @param string $userToken
+     * @param string $roleGuid
+     * @throws AccuNixException
+     */
+    public function authenticateRemoveByGuid(string $userToken, string $roleGuid)
+    {
+        $uri = '/authenticate/role/remove';
+        $url = $this->apiHost . $uri;
+        $params = [
+            'guid' => $roleGuid,
+            'userToken' => $userToken,
+        ];
+
+        $res = $this->client->post($url, [
+            'headers' => $this->headers,
+            'json' => $params,
+        ]);
+        
+        return json_decode($res->getBody()->__toString(), true);
+    }
+
+    /**
      * 發送票券
      * @param string $userToken
      * @param string $campaignGuid
