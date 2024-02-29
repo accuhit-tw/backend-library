@@ -15,7 +15,7 @@ composer:
     - php
   script:
     - sudo chmod -R 775 /builds/poc/
-    - composer install --no-scripts
+    - composer install --no-scripts --no-cache
     - cp .env.example .env
 
 phpunit:
