@@ -14,8 +14,8 @@ composer:
   tags:
     - php
   script:
-    - sudo chmod -R 775 /builds/poc/
-    - composer install --no-scripts --no-cache
+    - composer --version
+    - composer install
     - cp .env.example .env
 
 phpunit:
