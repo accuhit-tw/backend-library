@@ -15,7 +15,7 @@ composer:
     - php
   script:
     - composer --version
-    - composer install
+    - sudo composer install
     - cp .env.example .env
 
 phpunit:
