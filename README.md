@@ -171,6 +171,11 @@ UtilResponse::successResponse('success', ['userId' => 'U12345678']);
 UtilResponse::errorResponse('something error');
 ```
 
+### Change Log
+- 調整 UtilResponse - errorResponse
+    - 調整 status 為 statusCode
+    - 新增參數 data, errorCode, statusCode
+
 ### Service
 
 | Class         | Class description        |
