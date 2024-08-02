@@ -39,11 +39,13 @@ class UtilResponse
 
     /**
      * @param string $message
+     * @param array $data
+     * @param string $code
      * @return JsonResponse
      */
-    public static function errorResponse(string $message = ""): JsonResponse
+    public static function errorResponse(string $message = "", array $data = [], string $errorCode = "", int $statusCode = 400): JsonResponse
     {
-        /** @var string $status */
+        /** @var string $statusCode */
         if (Validate::checkQueryStr($message)) {
             UtilLogger::error($message);
             $message = "db error";
@@ -51,23 +53,29 @@ class UtilResponse
         $response = [
             "msg" => $message
         ];
+        if (!empty($data)) {
+            $response["data"] = $data;
+        }
+        if (!empty($errorCode)) {
+            $response["code"] = $errorCode;
+        }
         switch ($message) {
             case "token is needed":
-                $status = 401;
+                $statusCode = 401;
                 break;
             case in_array($message, ["token error", "alg error", "signature error", "iat error", "user not found"]):
-                $status = 403;
+                $statusCode = 403;
                 break;
             case "token expired":
-                $status = 409;
+                $statusCode = 409;
                 break;
             case "db error":
-                $status = 500;
+                $statusCode = 500;
                 break;
             default:
-                $status = 400;
+                $statusCode = 400;
                 break;
         }
-        return response()->json($response, $status);
+        return response()->json($response, $statusCode);
     }
 }
