@@ -172,6 +172,8 @@ UtilResponse::errorResponse('something error');
 ```
 
 ### Change Log
+- v1.4.3 (2024/08/09)
+  - JWT 增加支援 RS256
 - 調整 UtilResponse - errorResponse
     - 調整 status 為 statusCode
     - 新增參數 data, errorCode, statusCode

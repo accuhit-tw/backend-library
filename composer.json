@@ -18,11 +18,12 @@
     "require": {
         "php": "^8.0",
         "guzzlehttp/guzzle": "^7.2",
-        "vlucas/phpdotenv": "5.4.1"
+        "vlucas/phpdotenv": "^5.4.1",
+        "ext-openssl": "*"
     },
     "require-dev": {
-        "orchestra/testbench": "7.0.2",
-        "phpunit/phpunit": "9.5.x-dev",
+        "orchestra/testbench": "^7.0.2",
+        "phpunit/phpunit": "*",
         "squizlabs/php_codesniffer": "*"
     }
 }
